@@ -238,7 +238,7 @@ using Plots
     end
 
     ## Probability constructions
-    function Info_upscale(tf_variables,model_param,q_t_x, q_t_y)
+    function Info_upscale(tf_variables,model_param,q_t_x, q_t_y,maxiter=400)
         N_k_dis_ = 4
         p_pre_soft_max_values = ones(1,model_param.N_k) .+ (1e0 .* rand(1,model_param.N_k)) ;
 
@@ -271,7 +271,7 @@ using Plots
         opt_ADAM = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss* 1e5) 
         opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> 400, "ftol"=>1e-10, "gtol"=>1e-8))
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
-        opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> 200, "ftol"=>1e-12, "gtol"=>1e-16))
+        opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-16))
 
         return loss, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p
     end
@@ -386,7 +386,7 @@ using Plots
                 writedlm(io, k_y_save)
         end
         open(string(exp_name,"k_xy.txt"),mode) do io
-            writedlm(io, k_x_save)
+            writedlm(io, k_xy_save)
         end
         open(string(exp_name,"p.txt"), mode) do io
                 writedlm(io, p_save)

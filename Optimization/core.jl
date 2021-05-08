@@ -18,8 +18,8 @@ loss, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, 
 sess = Session(); init(sess);
 
 
-N_k_dis_ = 4
-T_exp = -2
+gloabl N_k_dis_ = 4
+global T_exp = -2
 T_=  10.0 .^ -T_exp
 
 save_values(sess,param_model_val,tf_variables,q_t_x, q_t_y,p,"w")
@@ -30,7 +30,7 @@ print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
 
 check_diff = run(sess,diff_eval,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
 
-T_exp_final =0
+global T_exp_final =0
 
 
 while T_exp <= T_exp_final

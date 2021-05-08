@@ -18,7 +18,7 @@ loss, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, 
 sess = Session(); init(sess);
 
 
-gloabl N_k_dis_ = 4
+global N_k_dis_ = 4
 global T_exp = -2
 T_=  10.0 .^ -T_exp
 

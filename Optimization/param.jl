@@ -7,7 +7,7 @@ module param()
 
     @with_kw struct param_model
 
-        exp_name = "check_initial_18_04_21"
+        exp_name = string("experiment",Dates.format(now(), "dd_mm_HH_MM_S"))
         run_name = "Run_no_zero_flow_Run_1613752497"
         N_points = 9
 

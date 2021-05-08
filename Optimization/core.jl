@@ -10,9 +10,10 @@ using DelimitedFiles
 using Dates
 using Plots
 
-maxiter =parse(Int64,ARGS[1])
-print("maximum iteration",maxiter)
-param_model_val = param_model();
+maxiter = parse(Int64,ARGS[1])
+N_steps = parse(Int64,ARGS[2])
+print("maximum iteration: ",maxiter,"/t","Number of steps: ",N_steps,"/n")
+param_model_val = param_model(N_steps);
 tf_variables, h_t, q_t_x, q_t_y = Darcy_flow_solver(param_model_val);
 
 loss, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p = Info_upscale(tf_variables,param_model_val,q_t_x, q_t_y,maxiter)
@@ -32,7 +33,7 @@ print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
 
 check_diff = run(sess,diff_eval,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
 
-T_exp_final =0
+T_exp_final =10
 
 
 while T_exp <= T_exp_final

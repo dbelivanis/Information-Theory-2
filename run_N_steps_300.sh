@@ -15,7 +15,7 @@ module --ignore-cache load "cuda/cuda-10.1"
 nvcc --version
 #
 #
-cd /data/cees/dbelivan/experiments/Research_information_theory/Optimization
+cd Optimization
 
 #module load julia/1.4.2
 

@@ -18,7 +18,7 @@ using Plots
     function left_BC(t)
         
         t_norm = (t/model_param.T * 10 -0.5)*180
-        time_multiplier = expit(-t_norm/20) + 0.5
+        time_multiplier = exp(-t_norm/20)/200
     end
     
     function BC(t)

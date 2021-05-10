@@ -5,7 +5,7 @@
 #SBATCH --partition=gpu
 #SBATCH --mem=64GB
 #SBATCH --time=48:00:00
-#SBATCH --error=/data/cees/dbelivan/check_core_1000_N_steps_600.err
+#SBATCH --error=/data/cees/dbelivan/checsk_core_1000_N_steps_600.err
 #SBATCH --output=/data/cees/dbelivan/check_core_1000_N_steps_600.out
 #
 #
@@ -15,7 +15,7 @@ module --ignore-cache load "cuda/cuda-10.1"
 nvcc --version
 #
 #
-cd /data/cees/dbelivan/experiments/Research_information_theory/Optimization
+cd Optimization
 
 #module load julia/1.4.2
 

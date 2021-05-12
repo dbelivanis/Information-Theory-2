@@ -25,7 +25,7 @@ using Plots
         BC_right_ = zeros(model_param.N_y)
         H = map(expit,-LinRange(-31.5,31.5,model_param.N_y)/10) /2 .+ 0.2
 
-        BC_left_ = H .* left_BC(t)  .+ 1
+        BC_left_ = H .* left_BC(t) + LinRange(0.2,0,model_param.N_y) .+ 1
         
         BC_left = SparseTensor(aux_matrix.ii_l, aux_matrix.jj_l, BC_left_, model_param.Ne, 1) 
         BC_right = SparseTensor(aux_matrix.ii_r, aux_matrix.jj_r, BC_right_, model_param.Ne, 1)

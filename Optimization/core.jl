@@ -12,6 +12,7 @@ using Plots
 
 maxiter = parse(Int64,ARGS[1])
 N_steps = parse(Int64,ARGS[2])
+ADAM = parse(Int64,ARGS[3])
 print("maximum iteration: ",maxiter,"\t","Number of steps: ",N_steps,"\n")
 param_model_val = param_model(N_steps=N_steps);
 tf_variables, h_t, q_t_x, q_t_y = Darcy_flow_solver(param_model_val);
@@ -28,12 +29,20 @@ T_=  10.0 .^ -T_exp
 save_values(sess,param_model_val,tf_variables,q_t_x, q_t_y,p,"w")
 
 print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
-ScipyOptimizerMinimize(sess, opt_LFGS_sum,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>4))
+
+if ADAM == 1
+    for i = 1:10000
+        run(sess, opt_ADAM_sum,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>4))
+
+    end
+else
+    ScipyOptimizerMinimize(sess, opt_LFGS_sum,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>4))
+end
 print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
 
 check_diff = run(sess,diff_eval,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
 
-T_exp_final =10
+T_exp_final =4
 
 
 while T_exp <= T_exp_final

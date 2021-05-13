@@ -26,7 +26,9 @@ module param()
         Ne::Int64 = N_x * N_y
         N_steps_fine::Int64 = N_steps
         N_k_fine::Int64 = 100
-        N_y_fine::Int64 = 1;
+        # N_y_fine::Int64 = 1;
+
+        n_step_skip::Int64 =  N_steps_orig ÷ N_steps
 
         dt::Float64 = T_h  / N_steps
         dx::Float64 = Lx / (N_x -1)
@@ -144,6 +146,22 @@ module param()
 
         aux_matrix(ii_l, jj_l, vv_l,ii_r, jj_r, vv_r, m2_m, m3_m, m4_m, m5_m, m2_m_1, m3_m_1, m4_m_1, m5_m_1,A_m) 
     end    
+
+    function load_K_s(model_param)
+
+        files_x = string("./",model_param.run_name,"/K_X",".txt")
+        files_y = string("./",model_param.run_name,"/K_Y",".txt")
+
+        k_x_list = readdlm(files_x, ' ', Float64)
+        k_y_list = readdlm(files_y, ' ', Float64)
+        
+        n_step_skip =  model_param.N_steps_orig ÷ model_param.N_steps
+
+        k_x_list = k_x_list[1:n_step_skip:1800]
+        k_y_list = k_y_list[1:n_step_skip:1800] 
+
+        return k_x_list, k_y_list
+    end
 
     function load_QoIs(model_param)
 

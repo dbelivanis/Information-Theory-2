@@ -148,11 +148,15 @@ using Plots
         h_IC = IC()
 
         h_t = TensorArray(model_param.N_steps)
+
+        k_x, k_y = param.load_K_s(model_param)
         
-        k_x_t_log = Variable(ones(model_param.N_k,model_param.N_steps)*log(1e-2).+ 0.0.*(0.0 .+ 5e-4 .* (0.5 .- rand(model_param.N_k,model_param.N_steps))))
+        # k_x_t_log = Variable(ones(model_param.N_k,model_param.N_steps)*log(1e-2).+ 0.0.*(0.0 .+ 5e-4 .* (0.5 .- rand(model_param.N_k,model_param.N_steps))))
+        k_x_t_log = Variable(log.(reshape(k_x,(1,model_param.N_steps))  .+ zeros(model_param.N_k,model_param.N_steps)).+ 4e-3.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
         k_x_t = tf.exp(k_x_t_log)
 
-        k_y_t_log = Variable(ones(model_param.N_k,model_param.N_steps)*log(1e-2).+ 0.0.*(0.0 .+ 5e-4 .* (0.5 .- rand(model_param.N_k,model_param.N_steps))))
+        # k_y_t_log = Variable(ones(model_param.N_k,model_param.N_steps)*log(1e-2).+ 0.0.*(0.0 .+ 5e-4 .* (0.5 .- rand(model_param.N_k,model_param.N_steps))))
+        k_y_t_log = Variable(log.(reshape(k_y,(1,model_param.N_steps))  .+ zeros(model_param.N_k,model_param.N_steps)).+ 4e-3.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
         k_y_t = tf.exp(k_y_t_log)
 
         # make it tanh

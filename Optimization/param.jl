@@ -36,6 +36,8 @@ module param()
 
         loc_x_list = [6,11,16, 6,11,16, 6,11,16]
         loc_y_list = [6, 6, 6,11,11,11,16,16,16];
+
+        K_mupltiplier::Float64  = 1
     end
 
     struct aux_matrix
@@ -157,8 +159,8 @@ module param()
         
         n_step_skip =  model_param.N_steps_orig ÷ model_param.N_steps
 
-        k_x_list = k_x_list[1:n_step_skip:1800]
-        k_y_list = k_y_list[1:n_step_skip:1800] 
+        k_x_list = k_x_list[1:n_step_skip:1800] * model_param.K_mupltiplier
+        k_y_list = k_y_list[1:n_step_skip:1800] * model_param.K_mupltiplier
 
         return k_x_list, k_y_list
     end

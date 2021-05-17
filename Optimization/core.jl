@@ -38,7 +38,7 @@ if ADAM == 1
 
     end
 else
-    print("ADAM:", ADAM)
+    print("LFGS:", ADAM)
     ScipyOptimizerMinimize(sess, opt_LFGS_sum,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>4))
 end
 print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)

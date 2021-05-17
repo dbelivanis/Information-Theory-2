@@ -277,7 +277,7 @@ using Plots
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
         opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-16))
 
-        return loss, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p
+        return loss,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p
     end
 
     function loss_function(lambda,p,y_t,q_t)
@@ -361,6 +361,29 @@ using Plots
                 end
                     
                 return N_k_dis_
+    end
+
+    function multiply_K(sess,model_param,tf_variables,multiplier)
+
+        k_x_t_log = tf_variables.k_x_t_log
+        k_y_t_log = tf_variables.k_y_t_log
+        k_xy_t_log = tf_variables.k_xy_t_log
+        N_k = model_param.N_k
+
+
+                
+        k_x_t_update = run(sess,k_x_t_log) 
+        k_x_t_update = k_x_t_update .+ multiplier
+        run(sess,tf.assign(k_x_t_log,k_x_t_update));
+                
+        k_y_t_update = run(sess,k_y_t_log) 
+        k_y_t_update = k_y_t_update .+ multiplier
+        run(sess,tf.assign(k_y_t_log,k_y_t_update));   
+                    
+        k_xy_t_update = run(sess,k_xy_t_log) 
+        k_xy_t_update = k_xy_t_update .* multiplier
+        run(sess,tf.assign(k_x_t_log,k_x_t_update));
+        
     end
 
     function initialize_sess()

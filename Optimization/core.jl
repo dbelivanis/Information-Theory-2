@@ -28,8 +28,8 @@ T_=  10.0 .^ -T_exp
 save_values(sess,param_model_val,tf_variables,q_t_x, q_t_y,p,"w")
 
 print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
-
-BFGS!(sess,dw_2*1e5,options=Dict("maxiter"=> 100, "ftol"=>1e-18, "gtol"=>1e-18))
+ScipyOptimizerMinimize(sess, opt_LFGS_sum,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>8))
+# BFGS!(sess,dw_2*1e5,options=Dict("maxiter"=> 100, "ftol"=>1e-18, "gtol"=>1e-18))
 
 print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
 

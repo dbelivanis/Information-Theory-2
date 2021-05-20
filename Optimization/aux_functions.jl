@@ -160,7 +160,7 @@ using Plots
         k_y_t = tf.exp(k_y_t_log)
 
         # make it tanh
-        k_xy_t_log = Variable(zeros(model_param.N_k,model_param.N_steps)  .+ 4e-5.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
+        k_xy_t_log = constant(zeros(model_param.N_k,model_param.N_steps)  .+ 1e-5.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
         k_xy_t = tf.tanh(k_xy_t_log) .* k_x_t^0.5 .* k_y_t^0.5
         # k_xy_t = k_xy_t_log .* k_x_t^0.5 .* k_y_t^0.5
 
@@ -277,16 +277,16 @@ using Plots
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
         opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-16))
 
-        return loss,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p
+        return loss_y,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p
     end
 
     function loss_function(lambda,p,y_t,q_t)
     
         q_t = tf.slice(q_t,constant([0,0,0],dtype=Int32),constant([-1,-1,1],dtype=Int32))
     
-        dw = tf.squared_difference(constant(reshape(y_t,(model_param.N_steps,model_param.N_k_fine,1))),constant(reshape(q_t,(model_param.N_steps,1,model_param.N_k))))
+        dw = tf.squared_difference(constant(reshape(transpose(y_t),(model_param.N_steps,model_param.N_k_fine,1))),constant(reshape(q_t,(model_param.N_steps,1,model_param.N_k))))
     
-        dw_2_sum = tf.reduce_mean(dw) * 1e20
+        dw_2_sum = tf.reduce_mean(dw) 
     
         dw_2_mean = tf.reduce_sum(tf.reduce_mean(dw,axis=0).*p)/model_param.N_k_fine
 
@@ -378,11 +378,11 @@ using Plots
                 
         k_y_t_update = run(sess,k_y_t_log) 
         k_y_t_update = k_y_t_update .+ multiplier
-        run(sess,tf.assign(k_y_t_log,k_y_t_update));   
+        # run(sess,tf.assign(k_y_t_log,k_y_t_update));   
                     
         k_xy_t_update = run(sess,k_xy_t_log) 
         k_xy_t_update = k_xy_t_update .* multiplier
-        run(sess,tf.assign(k_x_t_log,k_x_t_update));
+        # run(sess,tf.assign(k_x_t_log,k_x_t_update));
         
     end
 

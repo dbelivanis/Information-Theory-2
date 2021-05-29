@@ -161,7 +161,7 @@ using Plots
 
         # make it tanh
         k_xy_t_log = Variable(zeros(model_param.N_k,model_param.N_steps)  .+ 1e-5.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
-        k_xy_t = tf.tanh(k_xy_t_log) .* k_x_t^0.5 .* k_y_t^0.5 .*0.8
+        k_xy_t = tf.tanh(k_xy_t_log) .* k_x_t^0.5 .* k_y_t^0.5 .*0.6
         # k_xy_t = k_xy_t_log .* k_x_t^0.5 .* k_y_t^0.5
 
         q_t_x = [TensorArray(model_param.N_steps) for ii = 1:model_param.N_points]

@@ -160,8 +160,8 @@ using Plots
         k_y_t = tf.exp(k_y_t_log)
 
         # make it tanh
-        k_xy_t_log = constant(zeros(model_param.N_k,model_param.N_steps)  .+ 1e-5.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
-        k_xy_t = tf.tanh(k_xy_t_log) .* k_x_t^0.5 .* k_y_t^0.5
+        k_xy_t_log = Variable(zeros(model_param.N_k,model_param.N_steps)  .+ 1e-5.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
+        k_xy_t = tf.tanh(k_xy_t_log) .* k_x_t^0.5 .* k_y_t^0.5 .*0.8
         # k_xy_t = k_xy_t_log .* k_x_t^0.5 .* k_y_t^0.5
 
         q_t_x = [TensorArray(model_param.N_steps) for ii = 1:model_param.N_points]
@@ -277,7 +277,7 @@ using Plots
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
         opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-16))
 
-        return loss_y,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p
+        return loss,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p
     end
 
     function loss_function(lambda,p,y_t,q_t)
@@ -317,7 +317,7 @@ using Plots
         N_k = model_param.N_k
 
         print("function for update K:",check_diff,"\t",N_k_dis_,"\n")
-        if check_diff > 5e-2 && N_k_dis_ < N_k
+        if check_diff > 5e-5 && N_k_dis_ < N_k
                  
             k_x_t_update = run(sess,k_x_t_log) 
             k_x_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_x_t_update[1:N_k_dis_,:] 
@@ -344,17 +344,17 @@ using Plots
                     
                     N_k_dis_ *=2
                 else
-                    # k_x_t_update = run(sess,k_x_t_log) .+ (0.0 .+5e-3 *  (rand(N_k,model_param.N_steps
-        # ).-0.5));
-        #             run(sess,tf.assign(k_x_t_log,k_x_t_update));
+                    k_x_t_update = run(sess,k_x_t_log) .+ (0.0 .+5e-3 *  (rand(N_k,model_param.N_steps
+        ).-0.5));
+                    run(sess,tf.assign(k_x_t_log,k_x_t_update));
                         
-        #             k_y_t_update = run(sess,k_y_t_log) .+ (0.0 .+5e-3 *  (rand(N_k,model_param.N_steps
-        # ).-0.5));
-        #             run(sess,tf.assign(k_y_t_log,k_y_t_update));
+                    k_y_t_update = run(sess,k_y_t_log) .+ (0.0 .+5e-3 *  (rand(N_k,model_param.N_steps
+        ).-0.5));
+                    run(sess,tf.assign(k_y_t_log,k_y_t_update));
                         
-        #             k_xy_t_update = run(sess,k_xy_t_log) .+ (0.0 .+5e-4 *  (rand(N_k,model_param.N_steps
-        # ).-0.5));
-        #             run(sess,tf.assign(k_xy_t_log,k_xy_t_update));
+                    k_xy_t_update = run(sess,k_xy_t_log) .+ (0.0 .+5e-4 *  (rand(N_k,model_param.N_steps
+        ).-0.5));
+                    # run(sess,tf.assign(k_xy_t_log,k_xy_t_update));
                         
                     p_pre_soft_max_update = run(sess,p_pre_soft_max) .* (1 .+5e-3 *  (rand(1,N_k).-0.5));
                     run(sess,tf.assign(p_pre_soft_max,p_pre_soft_max_update));

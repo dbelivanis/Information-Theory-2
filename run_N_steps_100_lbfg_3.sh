@@ -19,7 +19,7 @@ cd Optimization
 
 #module load julia/1.4.2
 
-/home/dbelivan/julia-1.5.3/bin/julia core_2.jl 200 100
+/home/dbelivan/julia-1.5.3/bin/julia core_2.jl 200 3
 #
 echo "check end of script"
 # end script

@@ -161,7 +161,7 @@ using Plots
 
         # make it tanh
         k_xy_t_log = Variable(zeros(model_param.N_k,model_param.N_steps)  .+ 1e-5.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
-        k_xy_t = tf.tanh(k_xy_t_log) .* k_x_t^0.5 .* k_y_t^0.5 .*0.6
+        k_xy_t = tf.tanh(k_xy_t_log) .* k_x_t^0.5 .* k_y_t^0.5 .*0.4
         # k_xy_t = k_xy_t_log .* k_x_t^0.5 .* k_y_t^0.5
 
         q_t_x = [TensorArray(model_param.N_steps) for ii = 1:model_param.N_points]
@@ -273,7 +273,7 @@ using Plots
         diff_eval =  tf.reduce_max(tf.stack(diff_list))
 
         opt_ADAM = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss* 1e5) 
-        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> 400, "ftol"=>1e-10, "gtol"=>1e-8))
+        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> 100, "ftol"=>1e-10, "gtol"=>1e-8))
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
         opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
 

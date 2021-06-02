@@ -5,8 +5,8 @@
 #SBATCH --partition=gpu
 #SBATCH --mem=64GB
 #SBATCH --time=48:00:00
-#SBATCH --error=/home/dbelivan/check_core_1000_N_steps_100_lbfg_04.err
-#SBATCH --output=/home/dbelivan/check_core_1000_N_steps_100_lbfg04.out
+#SBATCH --error=/home/dbelivan/check_core_1000_N_steps_100_lbfg_03.err
+#SBATCH --output=/home/dbelivan/check_core_1000_N_steps_100_lbfg03.out
 #
 #
 echo "start script"

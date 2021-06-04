@@ -406,22 +406,22 @@ using Plots
         q_y_save = run(sess,q_t_y[5])
 
 
-        open(string("./../results".exp_name,"k_x.txt"),mode) do io
+        open(string("./../results",exp_name,"k_x.txt"),mode) do io
                 writedlm(io, k_x_save)
         end
-        open(string("./../results".exp_name,"k_y.txt"),mode) do io
+        open(string("./../results",exp_name,"k_y.txt"),mode) do io
                 writedlm(io, k_y_save)
         end
-        open(string("./../results".exp_name,"k_xy.txt"),mode) do io
+        open(string("./../results",exp_name,"k_xy.txt"),mode) do io
             writedlm(io, k_xy_save)
         end
-        open(string("./../results".exp_name,"p.txt"), mode) do io
+        open(string("./../results",exp_name,"p.txt"), mode) do io
                 writedlm(io, p_save)
         end
-        open(string("./../results".exp_name,"q_x.txt"),mode) do io
+        open(string("./../results",exp_name,"q_x.txt"),mode) do io
                 writedlm(io, q_x_save)
         end
-        open(string("./../results".exp_name,"q_y.txt"), mode) do io
+        open(string("./../results",exp_name,"q_y.txt"), mode) do io
                 writedlm(io, q_y_save)
         end
     end

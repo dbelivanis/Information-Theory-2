@@ -273,7 +273,7 @@ using Plots
         diff_eval =  tf.reduce_max(tf.stack(diff_list))
 
         opt_ADAM = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss* 1e5) 
-        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> 100, "ftol"=>1e-10, "gtol"=>1e-8))
+        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> 100, "ftol"=>1e-6, "gtol"=>1e-8))
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
         opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
 
@@ -406,28 +406,28 @@ using Plots
         q_y_save = run(sess,q_t_y[5])
 
 
-        open(string(exp_name,"k_x.txt"),mode) do io
+        open(string("./../results".exp_name,"k_x.txt"),mode) do io
                 writedlm(io, k_x_save)
         end
-        open(string(exp_name,"k_y.txt"),mode) do io
+        open(string("./../results".exp_name,"k_y.txt"),mode) do io
                 writedlm(io, k_y_save)
         end
-        open(string(exp_name,"k_xy.txt"),mode) do io
+        open(string("./../results".exp_name,"k_xy.txt"),mode) do io
             writedlm(io, k_xy_save)
         end
-        open(string(exp_name,"p.txt"), mode) do io
+        open(string("./../results".exp_name,"p.txt"), mode) do io
                 writedlm(io, p_save)
         end
-        open(string(exp_name,"q_x.txt"),mode) do io
+        open(string("./../results".exp_name,"q_x.txt"),mode) do io
                 writedlm(io, q_x_save)
         end
-        open(string(exp_name,"q_y.txt"), mode) do io
+        open(string("./../results".exp_name,"q_y.txt"), mode) do io
                 writedlm(io, q_y_save)
         end
     end
 
     function print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
         diff_,loss_ = run(sess,[diff_eval,loss],feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
-        print(Dates.format(now(), "HH:MM") ,T_exp,"\t",T_,"\t",diff_,"\t",loss_,"\t","\t",N_k_dis_,"\n")  
+        print("Saving Values at: ",Dates.format(now(), "HH:MM") ,T_exp,"\t",T_,"\t",diff_,"\t",loss_,"\t","\t",N_k_dis_,"\n")  
     end
 end

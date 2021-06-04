@@ -28,8 +28,8 @@ T_=  10.0 .^ -T_exp
 save_values(sess,param_model_val,tf_variables,q_t_x, q_t_y,p,"w")
 
 print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
-ScipyOptimizerMinimize(sess, opt_LFGS_sum,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>64))
-# BFGS!(sess,dw_2*1e5,options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12),feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>64))
+# ScipyOptimizerMinimize(sess, opt_LFGS_sum,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>64))
+BFGS!(sess,dw_2*1e5,options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12),feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>64))
 print("first bfgs")
 save_values(sess,param_model_val,tf_variables,q_t_x, q_t_y,p,"a")
 print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
@@ -39,6 +39,11 @@ check_diff = run(sess,diff_eval,feed_dict = Dict(tf_variables.lambda => ones(1)*
 T_exp_final =4
 
 while T_exp <= T_exp_final
+
+    if round(T_exp,digits=2)%1 == 0
+
+        save_values(sess,param_model_val,tf_variables,q_t_x, q_t_y,p)
+    end
 
     global T_=  10.0 ^ (-T_exp) 
 

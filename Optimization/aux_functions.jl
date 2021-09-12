@@ -18,7 +18,7 @@ using Plots
     function left_BC(t)
         
         t_norm = (t/model_param.T * 10 -0.5)*180
-        time_multiplier = exp(-t_norm/20)/200
+        time_multiplier = exp(-t_norm/50)/30
     end
     
     function BC(t)
@@ -244,14 +244,14 @@ using Plots
     ## Probability constructions
     function Info_upscale(tf_variables,model_param,q_t_x, q_t_y,maxiter=400)
         N_k_dis_ = 4
-        p_pre_soft_max_values = ones(1,model_param.N_k) .+ (1e0 .* rand(1,model_param.N_k)) ;
+        p_pre_soft_max_values = ones(1,model_param.N_k);# .+ (1e0 .* rand(1,model_param.N_k)) ; #CHANGED TO CHECK IF NOT OPTIMIZED --
 
         momment2, y_x_list, y_y_list = load_QoIs(model_param)
         for i = 1:N_k_dis_
             p_pre_soft_max_values[1,i] +=100
         end
         print(momment2)
-        p_pre_soft_max = tf.Variable(p_pre_soft_max_values)
+        p_pre_soft_max = constant(p_pre_soft_max_values)#CHANGED TO CHECK IF NOT OPTIMIZED
         p = tf.nn.softmax(p_pre_soft_max,1)
 
         loss_x_list = [loss_function(tf_variables.lambda,p,y_x_list[ii],q_t_x[ii]) for ii = 1:model_param.N_points]

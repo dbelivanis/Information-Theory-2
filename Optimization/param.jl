@@ -8,7 +8,7 @@ module param()
     @with_kw struct param_model
 
         exp_name = string("experiment",Dates.format(now(), "dd_mm_HH_MM_S"))
-        run_name = "Run_no_zero_flow_no_oscilations_Run_Run_1620834677"
+        run_name = "Run_no_zero_flow_no_oscilations_Run_Run_1623326650"
         N_points = 9
 
         Lx::Int64 = 1000

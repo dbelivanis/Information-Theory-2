@@ -251,7 +251,7 @@ using Plots
             p_pre_soft_max_values[1,i] +=100
         end
         print(momment2)
-        p_pre_soft_max = constant(p_pre_soft_max_values)#CHANGED TO CHECK IF NOT OPTIMIZED
+        p_pre_soft_max = Variable(p_pre_soft_max_values, trainable=false)#CHANGED TO CHECK IF NOT OPTIMIZED
         p = tf.nn.softmax(p_pre_soft_max,1)
 
         loss_x_list = [loss_function(tf_variables.lambda,p,y_x_list[ii],q_t_x[ii]) for ii = 1:model_param.N_points]

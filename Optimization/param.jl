@@ -151,8 +151,8 @@ module param()
 
     function load_K_s(model_param)
 
-        files_x = string("./",model_param.run_name,"/K_X",".txt")
-        files_y = string("./",model_param.run_name,"/K_Y",".txt")
+        files_x = string("./",model_param.run_name,"/K_x",".txt")
+        files_y = string("./",model_param.run_name,"/K_y",".txt")
 
         k_x_list = readdlm(files_x, ' ', Float64)
         k_y_list = readdlm(files_y, ' ', Float64)

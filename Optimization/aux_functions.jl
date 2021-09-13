@@ -429,7 +429,9 @@ using Plots
         end
     end
 
-    function print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables,mode="a")
+    function print_status(sess,model_param,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables,mode="a")
+
+        exp_name = model_param.exp_name
         diff_,loss_ = run(sess,[diff_eval,loss],feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
         print("Saving Values at: ",Dates.format(now(), "HH:MM") ,T_exp,"\t",T_,"\t",diff_,"\t",loss_,"\t","\t",N_k_dis_,"\n")  
 

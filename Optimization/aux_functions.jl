@@ -242,8 +242,8 @@ using Plots
     end
 
     ## Probability constructions
-    function Info_upscale(tf_variables,model_param,q_t_x, q_t_y,maxiter=400)
-        N_k_dis_ = 2
+    function Info_upscale(tf_variables,model_param,q_t_x, q_t_y,maxiter=400, N_k_dis_)
+        # N_k_dis_ = 2 #CHANGED for to put it on the core_2.jl file
         p_pre_soft_max_values = ones(1,model_param.N_k);# .+ (1e0 .* rand(1,model_param.N_k)) ; #CHANGED TO CHECK IF NOT OPTIMIZED --
 
         momment2, y_x_list, y_y_list = load_QoIs(model_param)
@@ -251,7 +251,7 @@ using Plots
             p_pre_soft_max_values[1,i] +=100
         end
         print(momment2)
-        p_pre_soft_max = Variable(p_pre_soft_max_values, trainable=false)#CHANGED TO CHECK IF NOT OPTIMIZED
+        p_pre_soft_max = Variable(p_pre_soft_max_values, trainable=false) #CHANGED TO CHECK IF NOT OPTIMIZED
         p = tf.nn.softmax(p_pre_soft_max,1)
 
         loss_x_list = [loss_function(tf_variables.lambda,p,y_x_list[ii],q_t_x[ii]) for ii = 1:model_param.N_points]
@@ -394,7 +394,7 @@ using Plots
         ScipyOptimizerMinimize(sess, opt_LFGS_sum,feed_dict = Dict(lambda => ones(1)*T_,N_k_dis=>N_k_dis_))
     end
 
-    function save_values(sess,model_param,tf_variables,q_t_x, q_t_y,p,mode="a")
+    function save_values(sess,model_param,tf_variables,q_t_x, q_t_y,p,T_exp,mode="a")
 
         exp_name = model_param.exp_name
 
@@ -405,6 +405,9 @@ using Plots
         q_x_save = run(sess,q_t_x[5])
         q_y_save = run(sess,q_t_y[5])
 
+        open(string("./../results/",exp_name,"lambda.txt"),mode) do io
+                writedlm(io, T_exp)
+        end
 
         open(string("./../results/",exp_name,"k_x.txt"),mode) do io
                 writedlm(io, k_x_save)
@@ -426,8 +429,12 @@ using Plots
         end
     end
 
-    function print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
+    function print_status(sess,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables,mode="a")
         diff_,loss_ = run(sess,[diff_eval,loss],feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
         print("Saving Values at: ",Dates.format(now(), "HH:MM") ,T_exp,"\t",T_,"\t",diff_,"\t",loss_,"\t","\t",N_k_dis_,"\n")  
+
+        open(string("./../results/",exp_name,"update.txt"), mode) do io
+               print("Saving Values at: ",Dates.format(now(), "HH:MM") ,T_exp,"\t",T_,"\t",diff_,"\t",loss_,"\t","\t",N_k_dis_,"\n")  
+        end
     end
 end

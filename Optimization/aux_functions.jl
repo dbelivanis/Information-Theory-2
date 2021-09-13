@@ -242,7 +242,7 @@ using Plots
     end
 
     ## Probability constructions
-    function Info_upscale(tf_variables,model_param,q_t_x, q_t_y,maxiter=400, N_k_dis_)
+    function Info_upscale(tf_variables,model_param,q_t_x,q_t_y,N_k_dis_,maxiter=400)
         # N_k_dis_ = 2 #CHANGED for to put it on the core_2.jl file
         p_pre_soft_max_values = ones(1,model_param.N_k);# .+ (1e0 .* rand(1,model_param.N_k)) ; #CHANGED TO CHECK IF NOT OPTIMIZED --
 

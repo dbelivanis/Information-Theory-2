@@ -1,11 +1,11 @@
+# Definition of module param that encapsulates all the parameters of the run of the optimization
 
 module param()
     export param_model, Multi_point_flux_aux_matrix, load_QoIs
-    
     using Parameters, DelimitedFiles, ADCME, SparseArrays, Dates
 
-
     @with_kw struct param_model
+        # main structure with the most important parameters
 
         exp_name = string("experiment",Dates.format(now(), "dd_mm_HH_MM_S"))
         run_name = "Run_no_zero_flow_no_oscilations_Run_Run_1623326650"
@@ -41,6 +41,7 @@ module param()
     end
 
     struct aux_matrix
+        # Structure to encapsulate the matrix for the linear solver
         ii_l
         jj_l
         vv_l
@@ -59,6 +60,7 @@ module param()
     end
 
     function Multi_point_flux_aux_matrix(param)
+        # function to create the martix for the multipoint flux approximation
 
         # loc_x_list = [6,11,16, 6,11,16, 6,11,16]
         # loc_y_list = [6, 6, 6,11,11,11,16,16,16];
@@ -150,7 +152,7 @@ module param()
     end    
 
     function load_K_s(model_param)
-
+        # function to load the initial guess of Ks
         files_x = string("./",model_param.run_name,"/K_x",".txt")
         files_y = string("./",model_param.run_name,"/K_y",".txt")
 
@@ -166,6 +168,7 @@ module param()
     end
 
     function load_QoIs(model_param)
+        # function to load the quantity of interest and calculate the standard deviation
 
         files_x = [string("./",model_param.run_name,"/Q_x_",string(ii),".txt") for ii =1:9]
         files_y = [string("./",model_param.run_name,"/Q_y_",string(ii),".txt") for ii =1:9]

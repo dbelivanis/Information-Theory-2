@@ -321,8 +321,8 @@ using Plots
 
         momment2 = reshape(std(y_t,dims=1),(model_param.N_steps,1,1)).^2;
     
-        dw = tf.reduce_sum(dw ./ momment2,axis=0)
-        # dw = tf.reduce_sum(dw ,axis=0)
+        # dw = tf.reduce_sum(dw ./ momment2,axis=0)
+        dw = tf.reduce_sum(dw ,axis=0)
     
         dw_min = tf.reduce_min(dw,1,keepdims=true)
         dw_m_min = -dw + dw_min

@@ -350,19 +350,19 @@ using Plots
                  
             k_x_t_update = run(sess,k_x_t_log) 
             k_x_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_x_t_update[1:N_k_dis_,:] 
-            k_x_t_update = k_x_t_update .+ (0.0 .+ 5e-1 .* (0.5 .- rand(N_k,model_param.N_steps
+            k_x_t_update = k_x_t_update .+ (0.0 .+ 1e-0 .* (0.5 .- rand(N_k,model_param.N_steps
         )))
                     run(sess,tf.assign(k_x_t_log,k_x_t_update));
                     
                     k_y_t_update = run(sess,k_y_t_log) 
                     k_y_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_y_t_update[1:N_k_dis_,:] 
-                    k_y_t_update = k_y_t_update .+ (0.0 .+ 5e-1.* (0.5 .- rand(N_k,model_param.N_steps
+                    k_y_t_update = k_y_t_update .+ (0.0 .+ 1e-0.* (0.5 .- rand(N_k,model_param.N_steps
         )))
                     run(sess,tf.assign(k_y_t_log,k_y_t_update));   
                         
                     k_xy_t_update = run(sess,k_xy_t_log) 
                     k_xy_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_xy_t_update[1:N_k_dis_,:] 
-                    k_xy_t_update = k_xy_t_update .+ (0.0 .+ 5e-3 .* (0.5 .- rand(N_k,model_param.N_steps
+                    k_xy_t_update = k_xy_t_update .+ (0.0 .+ 5e-2 .* (0.5 .- rand(N_k,model_param.N_steps
         )))
                     run(sess,tf.assign(k_x_t_log,k_x_t_update));
                 
@@ -373,11 +373,11 @@ using Plots
                     
                     N_k_dis_ *=2
                 else
-                    k_x_t_update = run(sess,k_x_t_log) .+ (0.0 .+5e-1 *  (rand(N_k,model_param.N_steps
+                    k_x_t_update = run(sess,k_x_t_log) .+ (0.0 .+1e-0 *  (rand(N_k,model_param.N_steps
         ).-0.5));
                     run(sess,tf.assign(k_x_t_log,k_x_t_update));
                         
-                    k_y_t_update = run(sess,k_y_t_log) .+ (0.0 .+5e-1 *  (rand(N_k,model_param.N_steps
+                    k_y_t_update = run(sess,k_y_t_log) .+ (0.0 .+1e-0 *  (rand(N_k,model_param.N_steps
         ).-0.5));
                     run(sess,tf.assign(k_y_t_log,k_y_t_update));
                         

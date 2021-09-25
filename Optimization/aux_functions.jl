@@ -321,8 +321,8 @@ using Plots
 
         momment2 = reshape(std(y_t,dims=1),(model_param.N_steps,1,1)).^2;
     
-        # dw = tf.reduce_sum(dw ./ momment2,axis=0)
-        dw = tf.reduce_sum(dw ,axis=0)
+        dw = tf.reduce_sum(dw ./ momment2,axis=0)
+        # dw = tf.reduce_sum(dw ,axis=0)
     
         dw_min = tf.reduce_min(dw,1,keepdims=true)
         dw_m_min = -dw + dw_min
@@ -350,13 +350,13 @@ using Plots
                  
             k_x_t_update = run(sess,k_x_t_log) 
             k_x_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_x_t_update[1:N_k_dis_,:] 
-            k_x_t_update = k_x_t_update .+ (0.0 .+ 5e-2 .* (0.5 .- rand(N_k,model_param.N_steps
+            k_x_t_update = k_x_t_update .+ (0.0 .+ 5e-1 .* (0.5 .- rand(N_k,model_param.N_steps
         )))
                     run(sess,tf.assign(k_x_t_log,k_x_t_update));
                     
                     k_y_t_update = run(sess,k_y_t_log) 
                     k_y_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_y_t_update[1:N_k_dis_,:] 
-                    k_y_t_update = k_y_t_update .+ (0.0 .+ 5e-2.* (0.5 .- rand(N_k,model_param.N_steps
+                    k_y_t_update = k_y_t_update .+ (0.0 .+ 5e-1.* (0.5 .- rand(N_k,model_param.N_steps
         )))
                     run(sess,tf.assign(k_y_t_log,k_y_t_update));   
                         
@@ -373,11 +373,11 @@ using Plots
                     
                     N_k_dis_ *=2
                 else
-                    k_x_t_update = run(sess,k_x_t_log) .+ (0.0 .+5e-2 *  (rand(N_k,model_param.N_steps
+                    k_x_t_update = run(sess,k_x_t_log) .+ (0.0 .+5e-1 *  (rand(N_k,model_param.N_steps
         ).-0.5));
                     run(sess,tf.assign(k_x_t_log,k_x_t_update));
                         
-                    k_y_t_update = run(sess,k_y_t_log) .+ (0.0 .+5e-2 *  (rand(N_k,model_param.N_steps
+                    k_y_t_update = run(sess,k_y_t_log) .+ (0.0 .+5e-1 *  (rand(N_k,model_param.N_steps
         ).-0.5));
                     run(sess,tf.assign(k_y_t_log,k_y_t_update));
                         

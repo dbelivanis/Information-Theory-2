@@ -315,7 +315,7 @@ using Plots
     
         dw = tf.squared_difference(constant(reshape(transpose(y_t),(model_param.N_steps,model_param.N_k_fine,1))),constant(reshape(q_t,(model_param.N_steps,1,model_param.N_k))))
     
-        dw_2_sum = tf.reduce_mean(dw) * 1e3
+        dw_2_sum = tf.reduce_mean(dw) * 1000
     
         dw_2_mean = tf.reduce_sum(tf.reduce_mean(dw,axis=0).*p)/model_param.N_k_fine
 

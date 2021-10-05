@@ -8,7 +8,7 @@ module param()
         # main structure with the most important parameters
 
         exp_name = string("experiment",Dates.format(now(), "dd_mm_HH_MM_S"))
-        run_name = "Run_no_zero_flow_no_oscilations_Run_Run_1623326650"
+        run_name = "Run_no_zero_flow_no_oscilations_Run_Run_1633466607"
         N_points = 9
 
         Lx::Int64 = 1000
@@ -156,13 +156,13 @@ module param()
         files_x = string("./",model_param.run_name,"/K_x",".txt")
         files_y = string("./",model_param.run_name,"/K_y",".txt")
 
-        k_x_list = readdlm(files_x, ' ', Float64)
-        k_y_list = readdlm(files_y, ' ', Float64)
+        k_x_list = readdlm(files_x, ' ', Float64) 
+        k_y_list = readdlm(files_y, ' ', Float64) 
         
         n_step_skip =  model_param.N_steps_orig ÷ model_param.N_steps
 
-        k_x_list = k_x_list[1:n_step_skip:1800] * model_param.K_mupltiplier /1000
-        k_y_list = k_y_list[1:n_step_skip:1800] * model_param.K_mupltiplier /1000
+        k_x_list = k_x_list[1:n_step_skip:1800] * model_param.K_mupltiplier 
+        k_y_list = k_y_list[1:n_step_skip:1800] * model_param.K_mupltiplier 
 
         return k_x_list, k_y_list
     end

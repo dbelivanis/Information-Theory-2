@@ -315,13 +315,14 @@ using Plots
     
         dw = tf.squared_difference(constant(reshape(transpose(y_t),(model_param.N_steps,model_param.N_k_fine,1))),constant(reshape(q_t,(model_param.N_steps,1,model_param.N_k))))
     
-        dw_2_sum = tf.reduce_mean(dw) * 1000
+        # dw_2_sum = tf.reduce_mean(dw) * 1e5 # devide with momment
     
         dw_2_mean = tf.reduce_sum(tf.reduce_mean(dw,axis=0).*p)/model_param.N_k_fine
 
         momment2 = reshape(std(y_t,dims=1),(model_param.N_steps,1,1)).^2;
     
         dw = tf.reduce_sum(dw ./ momment2,axis=0)
+        dw_2_sum = tf.reduce_mean(dw) * 1e5
         # dw = tf.reduce_sum(dw ,axis=0)
     
         dw_min = tf.reduce_min(dw,1,keepdims=true)

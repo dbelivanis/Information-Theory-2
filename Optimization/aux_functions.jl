@@ -283,13 +283,13 @@ using Plots
         loss_y_list = [loss_function(tf_variables.lambda,p,y_y_list[ii],q_t_y[ii]) for ii = 1:model_param.N_points];
 
         # Evaluate the loss function for the central point
-        loss_x = loss_x_list[5][1] + loss_x_list[4][1] + loss_x_list[6][1] #+ loss_x_list[2][1] + loss_x_list[8][1] 
-        loss_y = loss_y_list[5][1] + loss_y_list[4][1] + loss_y_list[6][1] #+ loss_y_list[2][1] + loss_y_list[8][1] 
+        loss_x = loss_x_list[5][1] + loss_x_list[4][1] + loss_x_list[6][1] + loss_x_list[2][1] + loss_x_list[8][1] 
+        loss_y = loss_y_list[5][1] + loss_y_list[4][1] + loss_y_list[6][1] + loss_y_list[2][1] + loss_y_list[8][1] 
         loss = loss_x + loss_y 
         
         # Loss function as Mean Square Error
-        dw_x = loss_x_list[5][2] + loss_x_list[4][2] + loss_x_list[6][2] #+ loss_x_list[2][2] + loss_x_list[8][2] 
-        dw_y = loss_y_list[5][2] + loss_x_list[4][2] + loss_y_list[6][2] #+ loss_x_list[2][2] + loss_y_list[8][2]         
+        dw_x = loss_x_list[5][2] + loss_x_list[4][2] + loss_x_list[6][2] + loss_x_list[2][2] + loss_x_list[8][2] 
+        dw_y = loss_y_list[5][2] + loss_x_list[4][2] + loss_y_list[6][2] + loss_x_list[2][2] + loss_y_list[8][2]         
         dw_2_sum = dw_x + dw_y #change name
 
 

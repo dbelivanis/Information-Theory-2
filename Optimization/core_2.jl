@@ -17,7 +17,7 @@ print("maximum iteration: ",maxiter,"\t","Number of steps: ",N_steps,"\n")
 
 # Definition of the parameters of initial descrite probabilities and initial lambda
 global N_k_dis_ = 2
-global T_exp = -4.0
+global T_exp = -3.0
 
 # Initialization of the model and the optimization process
 param_model_val = param_model(N_steps=N_steps);

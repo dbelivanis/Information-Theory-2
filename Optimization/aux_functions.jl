@@ -283,13 +283,13 @@ using Plots
         loss_y_list = [loss_function(tf_variables.lambda,p,y_y_list[ii],q_t_y[ii]) for ii = 1:model_param.N_points];
 
         # Evaluate the loss function for the central point
-        loss_x = loss_x_list[5][1] + loss_x_list[4][1] + loss_x_list[6][1] + loss_x_list[2][1] + loss_x_list[8][1] 
-        loss_y = loss_y_list[5][1] + loss_y_list[4][1] + loss_y_list[6][1] + loss_y_list[2][1] + loss_y_list[8][1] 
+        loss_x = loss_x_list[5][1] + loss_x_list[4][1] + loss_x_list[6][1] #+ loss_x_list[2][1] + loss_x_list[8][1] 
+        loss_y = loss_y_list[5][1] + loss_y_list[4][1] + loss_y_list[6][1] #+ loss_y_list[2][1] + loss_y_list[8][1] 
         loss = loss_x + loss_y 
         
         # Loss function as Mean Square Error
-        dw_x = loss_x_list[5][2] + loss_x_list[4][2] + loss_x_list[6][2] + loss_x_list[2][2] + loss_x_list[8][2] 
-        dw_y = loss_y_list[5][2] + loss_x_list[4][2] + loss_y_list[6][2] + loss_x_list[2][2] + loss_y_list[8][2]         
+        dw_x = loss_x_list[5][2] + loss_x_list[4][2] + loss_x_list[6][2] #+ loss_x_list[2][2] + loss_x_list[8][2] 
+        dw_y = loss_y_list[5][2] + loss_x_list[4][2] + loss_y_list[6][2] #+ loss_x_list[2][2] + loss_y_list[8][2]         
         dw_2_sum = dw_x + dw_y #change name
 
 
@@ -363,9 +363,9 @@ using Plots
                         
                     k_xy_t_update = run(sess,k_xy_t_log) 
                     k_xy_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_xy_t_update[1:N_k_dis_,:] 
-                    k_xy_t_update = k_xy_t_update .+ (0.0 .+ 5e-3 .* (0.5 .- rand(N_k,model_param.N_steps
+                    k_xy_t_update = k_xy_t_update .+ (0.0 .+ 0e-3 .* (0.5 .- rand(N_k,model_param.N_steps
         )))
-                    run(sess,tf.assign(k_x_t_log,k_x_t_update));
+                    run(sess,tf.assign(k_xy_t_log,k_x_t_update));
                 
                     p_pre_soft_max_update = run(sess,p_pre_soft_max) 
                     p_pre_soft_max_update[:,N_k_dis_+1:N_k_dis_*2] = p_pre_soft_max_update[:,1:N_k_dis_] 
@@ -382,7 +382,7 @@ using Plots
         ).-0.5));
                     run(sess,tf.assign(k_y_t_log,k_y_t_update));
                         
-                    k_xy_t_update = run(sess,k_xy_t_log) .+ (0.0 .+5e-3 *  (rand(N_k,model_param.N_steps
+                    k_xy_t_update = run(sess,k_xy_t_log) .+ (0.0 .+0e-3 *  (rand(N_k,model_param.N_steps
         ).-0.5));
                     # run(sess,tf.assign(k_xy_t_log,k_xy_t_update));
                         

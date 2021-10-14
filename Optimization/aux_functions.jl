@@ -365,7 +365,7 @@ using Plots
                     k_xy_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_xy_t_update[1:N_k_dis_,:] 
                     k_xy_t_update = k_xy_t_update .+ (0.0 .+ 0e-3 .* (0.5 .- rand(N_k,model_param.N_steps
         )))
-                    run(sess,tf.assign(k_xy_t_log,k_x_t_update));
+                    run(sess,tf.assign(k_xy_t_log,k_xy_t_update));
                 
                     p_pre_soft_max_update = run(sess,p_pre_soft_max) 
                     p_pre_soft_max_update[:,N_k_dis_+1:N_k_dis_*2] = p_pre_soft_max_update[:,1:N_k_dis_] 

@@ -301,7 +301,7 @@ using Plots
 
         # Define all the optimization algorithm ADAM and LFGS for both MSE and information theory approach
         opt_ADAM = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss* 1e5) 
-        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
+        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter * 2, "ftol"=>1e-12, "gtol"=>1e-12))
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
         opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
 
@@ -357,13 +357,13 @@ using Plots
                     
                     k_y_t_update = run(sess,k_y_t_log) 
                     k_y_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_y_t_update[1:N_k_dis_,:] 
-                    k_y_t_update = k_y_t_update .+ (0.0 .+ 5e-3.* (0.5 .- rand(N_k,model_param.N_steps
+                    k_y_t_update = k_y_t_update .+ (0.0 .+ 5e-5.* (0.5 .- rand(N_k,model_param.N_steps
         )))
                     run(sess,tf.assign(k_y_t_log,k_y_t_update));   
                         
                     k_xy_t_update = run(sess,k_xy_t_log) 
                     k_xy_t_update[N_k_dis_+1:N_k_dis_*2,:] = k_xy_t_update[1:N_k_dis_,:] 
-                    k_xy_t_update = k_xy_t_update .+ (0.0 .+ 0e-3 .* (0.5 .- rand(N_k,model_param.N_steps
+                    k_xy_t_update = k_xy_t_update .+ (0.0 .+ 0e-5 .* (0.5 .- rand(N_k,model_param.N_steps
         )))
                     run(sess,tf.assign(k_xy_t_log,k_xy_t_update));
                 
@@ -374,15 +374,15 @@ using Plots
                     
                     N_k_dis_ *=2
                 else
-                    k_x_t_update = run(sess,k_x_t_log) .+ (0.0 .+5e-3 *  (rand(N_k,model_param.N_steps
+                    k_x_t_update = run(sess,k_x_t_log) .+ (0.0 .+5e-5 *  (rand(N_k,model_param.N_steps
         ).-0.5));
                     run(sess,tf.assign(k_x_t_log,k_x_t_update));
                         
-                    k_y_t_update = run(sess,k_y_t_log) .+ (0.0 .+5e-3 *  (rand(N_k,model_param.N_steps
+                    k_y_t_update = run(sess,k_y_t_log) .+ (0.0 .+5e-5 *  (rand(N_k,model_param.N_steps
         ).-0.5));
                     run(sess,tf.assign(k_y_t_log,k_y_t_update));
                         
-                    k_xy_t_update = run(sess,k_xy_t_log) .+ (0.0 .+0e-3 *  (rand(N_k,model_param.N_steps
+                    k_xy_t_update = run(sess,k_xy_t_log) .+ (0.0 .+0e-5 *  (rand(N_k,model_param.N_steps
         ).-0.5));
                     # run(sess,tf.assign(k_xy_t_log,k_xy_t_update));
                         

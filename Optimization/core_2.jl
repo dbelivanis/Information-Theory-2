@@ -22,7 +22,7 @@ global T_exp = -3.0
 # Initialization of the model and the optimization process
 param_model_val = param_model(N_steps=N_steps);
 tf_variables, h_t, q_t_x, q_t_y = Darcy_flow_solver(param_model_val);
-loss, dw_2, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p = Info_upscale(tf_variables,param_model_val,q_t_x,q_t_y,N_k_dis_,maxiter)
+loss, dw_2, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p,opt_LFGS_x,opt_LFGS_y = Info_upscale(tf_variables,param_model_val,q_t_x,q_t_y,N_k_dis_,maxiter)
 
 # Initialization of the session
 sess = Session(); init(sess);
@@ -30,6 +30,7 @@ sess = Session(); init(sess);
 
 # Initial lambda
 T_=  10.0 .^ -T_exp
+
 
 # Save values of the initial guess
 save_values(sess,param_model_val,tf_variables,q_t_x, q_t_y,p,T_exp,"w")
@@ -64,6 +65,9 @@ while T_exp <= T_exp_final
     print_status(sess,param_model_val,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
 
     # Run optimization
+    ScipyOptimizerMinimize(sess, opt_LFGS_x,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
+    ScipyOptimizerMinimize(sess, opt_LFGS_y,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
+
     ScipyOptimizerMinimize(sess, opt_LFGS,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
     
     # Print status post optimization

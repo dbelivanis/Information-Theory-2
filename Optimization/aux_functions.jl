@@ -279,7 +279,7 @@ using Plots
         p = tf.nn.softmax(p_pre_soft_max,1)
 
         # Evaluation of all loss functions for all available points
-        loss_x_list = [loss_function(tf_variables.lambda*100,p,y_x_list[ii],q_t_x[ii]) for ii = 1:model_param.N_points]
+        loss_x_list = [loss_function(tf_variables.lambda*10,p,y_x_list[ii],q_t_x[ii]) for ii = 1:model_param.N_points]
         loss_y_list = [loss_function(tf_variables.lambda,p,y_y_list[ii],q_t_y[ii]) for ii = 1:model_param.N_points];
 
         # Evaluate the loss function for the central point
@@ -304,8 +304,10 @@ using Plots
         opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter * 2, "ftol"=>1e-12, "gtol"=>1e-12))
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
         opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
+        opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_x_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
+        opt_LFGS_y = ScipyOptimizerInterface(loss_y * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_y_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
 
-        return loss,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p
+        return loss,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p,opt_LFGS_x,opt_LFGS_y
     end
 
     function loss_function(lambda,p,y_t,q_t)

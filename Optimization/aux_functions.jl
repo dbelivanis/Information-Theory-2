@@ -279,7 +279,7 @@ using Plots
         p = tf.nn.softmax(p_pre_soft_max,1)
 
         # Evaluation of all loss functions for all available points
-        loss_x_list = [loss_function(tf_variables.lambda*10,p,y_x_list[ii],q_t_x[ii]) for ii = 1:model_param.N_points]
+        loss_x_list = [loss_function(tf_variables.lambda*3,p,y_x_list[ii],q_t_x[ii]) for ii = 1:model_param.N_points]
         loss_y_list = [loss_function(tf_variables.lambda,p,y_y_list[ii],q_t_y[ii]) for ii = 1:model_param.N_points];
 
         # Evaluate the loss function for the central point

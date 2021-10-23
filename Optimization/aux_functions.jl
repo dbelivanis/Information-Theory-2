@@ -289,7 +289,7 @@ using Plots
         
         # Loss function as Mean Square Error
         dw_x = loss_x_list[5][2] + loss_x_list[4][2] + loss_x_list[6][2] #+ loss_x_list[2][2] + loss_x_list[8][2] 
-        dw_y = loss_y_list[5][2] + loss_x_list[4][2] + loss_y_list[6][2] #+ loss_x_list[2][2] + loss_y_list[8][2]         
+        dw_y = loss_y_list[5][2] + loss_y_list[4][2] + loss_y_list[6][2] #+ loss_y_list[2][2] + loss_y_list[8][2]         
         dw_2_sum = dw_x + dw_y #change name
 
 
@@ -301,11 +301,11 @@ using Plots
 
         # Define all the optimization algorithm ADAM and LFGS for both MSE and information theory approach
         opt_ADAM = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss* 1e5) 
-        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter * 2, "ftol"=>1e-12, "gtol"=>1e-12))
+        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter * 2, "ftol"=>1e-10, "gtol"=>1e-10))
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
-        opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
-        opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_x_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
-        opt_LFGS_y = ScipyOptimizerInterface(loss_y * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_y_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-12, "gtol"=>1e-12))
+        opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter, "ftol"=>1e-10, "gtol"=>1e-10))
+        opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_x_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-10, "gtol"=>1e-10))
+        opt_LFGS_y = ScipyOptimizerInterface(loss_y * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_y_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-10, "gtol"=>1e-10))
 
         return loss,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p,opt_LFGS_x,opt_LFGS_y
     end

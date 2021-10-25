@@ -65,8 +65,8 @@ while T_exp <= T_exp_final
     print_status(sess,param_model_val,loss,diff_eval,T_exp,T_,N_k_dis_,tf_variables)
 
     # Run optimization
-    # ScipyOptimizerMinimize(sess, opt_LFGS_x,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
-    # ScipyOptimizerMinimize(sess, opt_LFGS_y,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
+    ScipyOptimizerMinimize(sess, opt_LFGS_x,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
+    ScipyOptimizerMinimize(sess, opt_LFGS_y,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
 
     ScipyOptimizerMinimize(sess, opt_LFGS,feed_dict = Dict(tf_variables.lambda => ones(1)*T_,tf_variables.N_k_dis=>N_k_dis_))
     

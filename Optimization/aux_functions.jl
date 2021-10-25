@@ -301,11 +301,11 @@ using Plots
 
         # Define all the optimization algorithm ADAM and LFGS for both MSE and information theory approach
         opt_ADAM = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss* 1e5) 
-        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter * 2, "ftol"=>1e-8, "gtol"=>1e-8))
+        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter * 2, "ftol"=>1e-14, "gtol"=>1e-14))
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
-        opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_x_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-8, "gtol"=>1e-8))
-        opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_x_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-8, "gtol"=>1e-8))
-        opt_LFGS_y = ScipyOptimizerInterface(loss_y * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_y_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-8, "gtol"=>1e-8))
+        opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_xy_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-14, "gtol"=>1e-14))
+        opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_x_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-14, "gtol"=>1e-14))
+        opt_LFGS_y = ScipyOptimizerInterface(loss_y * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_y_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-14, "gtol"=>1e-14))
 
         return loss,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p,opt_LFGS_x,opt_LFGS_y
     end

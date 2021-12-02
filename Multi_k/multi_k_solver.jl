@@ -348,7 +348,7 @@ function update_K_p(sess, model_param, tf_variables, check_diff, N_k_dis_, p_pre
     N_k = model_param.N_k
 
     print("function for update K:", check_diff, "\t", N_k_dis_, "\n")
-    if check_diff > 5e-5 && N_k_dis_ < N_k
+    if check_diff > 5e-9 && N_k_dis_ < N_k
 
         k_x_t_update = run(sess, k_x_t_log)
         k_x_t_update[N_k_dis_+1:N_k_dis_*2, :] = k_x_t_update[1:N_k_dis_, :]

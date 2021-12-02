@@ -352,8 +352,7 @@ function update_K_p(sess, model_param, tf_variables, check_diff, N_k_dis_, p_pre
 
         k_x_t_update = run(sess, k_x_t_log)
         k_x_t_update[N_k_dis_+1:N_k_dis_*2, :] = k_x_t_update[1:N_k_dis_, :]
-        k_x_t_update = k_x_t_update .+ (0.0 .+ 5e-3 .* (0.5 .- rand(N_k, model_param.N_steps
-        )))
+        k_x_t_update = k_x_t_update .+ (0.0 .+ 5e-3 .* (0.5 .- rand(N_k)))
         run(sess, tf.assign(k_x_t_log, k_x_t_update))
 
         p_pre_soft_max_update = run(sess, p_pre_soft_max)
@@ -363,8 +362,7 @@ function update_K_p(sess, model_param, tf_variables, check_diff, N_k_dis_, p_pre
 
         N_k_dis_ *= 2
     else
-        k_x_t_update = run(sess, k_x_t_log) .+ (0.0 .+ 5e-5 * (rand(N_k, model_param.N_steps
-        ) .- 0.5))
+        k_x_t_update = run(sess, k_x_t_log) .+ (0.0 .+ 5e-5 * (rand(N_k) .- 0.5))
         run(sess, tf.assign(k_x_t_log, k_x_t_update))
 
         p_pre_soft_max_update = run(sess, p_pre_soft_max) .* (1 .+ 0 * (rand(1, N_k) .- 0.5))

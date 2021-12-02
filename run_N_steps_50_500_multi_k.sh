@@ -5,8 +5,8 @@
 #SBATCH --partition=gpu
 #SBATCH --mem=64GB
 #SBATCH --time=48:00:00
-#SBATCH --error=/home/dbelivan/research/run_N_steps_50_500_fto_8.err
-#SBATCH --output=/home/dbelivan/research/run_N_steps_50_500_fto_8.out
+#SBATCH --error=/home/dbelivan/research/run_multi_k.err
+#SBATCH --output=/home/dbelivan/research/run_multi_k.out
 #
 #
 echo "start script"

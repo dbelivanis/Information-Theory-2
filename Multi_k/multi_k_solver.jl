@@ -344,7 +344,7 @@ end
 
 function update_K_p(sess, model_param, tf_variables, check_diff, N_k_dis_, p_pre_soft_max)
     # function to update the permeabilities, if criteria are met the active probabilities are doubled otherwise the permeabilities are perturbed 
-    k_x_t_log = tf_variables.K
+    k_x_t_log = tf_variables.K_log
     N_k = model_param.N_k
 
     print("function for update K:", check_diff, "\t", N_k_dis_, "\n")

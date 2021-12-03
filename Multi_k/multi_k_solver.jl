@@ -271,7 +271,7 @@ function Info_upscale(tf_variables, model_param, q_t, N_k_dis_ = 2, maxiter = 40
 
         return loss, dw_2_sum
     end
-    
+
     files_q = string("./", "exitq_mean_50", ".txt")
 
     y_t = readdlm(files_q, ' ', Float64)
@@ -294,7 +294,7 @@ function Info_upscale(tf_variables, model_param, q_t, N_k_dis_ = 2, maxiter = 40
 
     sort_list = [tf.sort(q_t, axis = 1)]
     diff_list = [tf.reduce_max(tf.reduce_min((tf.slice(sort_list[ii], [0, 1], [-1, -1]) -
-                                              (tf.slice(sort_list[ii], [0, 0], [-1, model_param.N_k_dis - 1]))) ./ tf.reduce_mean(sort_list[ii], axis = 1, keep_dims = true), axis = 1)) for ii in 1]
+                                              (tf.slice(sort_list[ii], [0, 0], [-1, tf_variables.N_k_dis - 1]))) ./ tf.reduce_mean(sort_list[ii], axis = 1, keep_dims = true), axis = 1)) for ii in 1]
     diff_eval = tf.reduce_max(tf.stack(diff_list))
 
 

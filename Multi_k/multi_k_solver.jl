@@ -292,7 +292,10 @@ function Info_upscale(tf_variables, model_param, q_t, N_k_dis_ = 2, maxiter = 40
 
     loss, dw_2_sum = loss_function(tf_variables.lambda, p, y_t, q_t)
 
-    sort_list = [tf.sort(q_t, axis = 1)]
+
+    sort_list = [tf.sort(tf.slice(q_t , [0, 0], [model_param.N_steps, tf_variables.N_k_dis]), axis = 1) ]
+
+    # sort_list = [tf.sort(q_t, axis = 1)]
     diff_list = [tf.reduce_max(tf.reduce_min((tf.slice(sort_list[ii], [0, 1], [-1, -1]) -
                                               (tf.slice(sort_list[ii], [0, 0], [-1, tf_variables.N_k_dis - 1]))) ./ tf.reduce_mean(sort_list[ii], axis = 1, keep_dims = true), axis = 1)) for ii in 1]
     diff_eval = tf.reduce_max(tf.stack(diff_list))

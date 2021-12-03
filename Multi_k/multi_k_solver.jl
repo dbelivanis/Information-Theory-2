@@ -17,6 +17,7 @@ mutable struct tf_variables_definition
     lambda
     N_k_dis
     K_log
+    K_exp
     K
 end
 
@@ -164,8 +165,9 @@ function solver_multi_k(model_param)
     end
 
     K_log = Variable(log.(ones(model_param.N_k, 1, 1) * 1e-5))
-    K_log_field = K_log .* ones(1, model_param.N_x, model_param.N_y)
-    K = tf.exp(K_log_field)
+    # K_log_field = K_log .* ones(1, model_param.N_x, model_param.N_y)
+    K_exp = tf.exp(K_log)
+    K = K_exp .* ones(1, model_param.N_x, model_param.N_y)
 
     K_avg_x = 2 / (1 / K[:, 2:end, :] + 1 / K[:, 1:end-1, :])
     K_avg_y = 2 / (1 / K[:, :, 2:end] + 1 / K[:, :, 1:end-1])
@@ -231,7 +233,7 @@ function solver_multi_k(model_param)
     q_t_x = reshape(K_avg_x[:, i_qoi, j_qoi], (1, model_param.N_k)) .* (h_t[:, :, ij_qoi] - h_t[:, :, ij_qoi+1]) / model_param.dx
 
 
-    tf_variables = tf_variables_definition(lambda, N_k_dis, K_log, K)
+    tf_variables = tf_variables_definition(lambda, N_k_dis, K_log, K_exp, K)
 
     return tf_variables, h_t, q_t_x
 
@@ -292,7 +294,7 @@ function Info_upscale(tf_variables, model_param, q_t, N_k_dis_ = 2, maxiter = 40
 
     sort_list = [tf.sort(q_t, axis = 1)]
     diff_list = [tf.reduce_max(tf.reduce_min((tf.slice(sort_list[ii], [0, 1], [-1, -1]) -
-                                              (tf.slice(sort_list[ii], [0, 0], [-1, model_param.N_k - 1]))) ./ tf.reduce_mean(sort_list[ii], axis = 1, keep_dims = true), axis = 1)) for ii in 1]
+                                              (tf.slice(sort_list[ii], [0, 0], [-1, model_param.N_k_dis - 1]))) ./ tf.reduce_mean(sort_list[ii], axis = 1, keep_dims = true), axis = 1)) for ii in 1]
     diff_eval = tf.reduce_max(tf.stack(diff_list))
 
 
@@ -313,7 +315,7 @@ function save_values(sess, model_param, tf_variables, q_t, p, T_exp, mode = "a")
     # name of current experiment
     exp_name = model_param.exp_name
     # evaluation of tensor flow variables and tensors
-    k_x_save = run(sess, tf_variables.K)
+    k_x_save = run(sess, tf_variables.K_exp)
     p_save = run(sess, p)
     q_x_save = run(sess, q_t)
 

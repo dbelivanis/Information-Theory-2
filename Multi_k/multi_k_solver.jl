@@ -19,6 +19,8 @@ mutable struct tf_variables_definition
     N_k_dis
     K_save
     K
+    K_log_mean
+    K_log_Var
 end
 
 
@@ -242,7 +244,7 @@ function solver_multi_k(model_param)
     q_t_x = reshape(K_avg_x[:, i_qoi, j_qoi], (1, model_param.N_k)) .* (h_t[:, :, ij_qoi] - h_t[:, :, ij_qoi+1]) / model_param.dx
 
 
-    tf_variables = tf_variables_definition(lambda, N_k_dis, K_save, K)
+    tf_variables = tf_variables_definition(lambda, N_k_dis, K_save, K, K_log_mean, K_log_Var)
 
     return tf_variables, h_t, q_t_x
 

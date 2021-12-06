@@ -23,7 +23,7 @@ global T_exp = -3.0
 
 model_param = param_model(N_k = 64, N_x = 10, N_y = 10, N_steps = N_steps);
 tf_variables, check_h, q_t_x = multi_k_solver.solver_multi_k(model_param);
-loss, dw_2_sum, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval, p_pre_soft_max, p = Info_upscale(tf_variables, model_param, q_t_x)
+loss, dw_2_sum, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval, p_pre_soft_max, p = Info_upscale(tf_variables, model_param, q_t_x, N_k_dis_)
 
 
 # Initialization of the session

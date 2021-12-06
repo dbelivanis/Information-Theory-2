@@ -314,7 +314,7 @@ function Info_upscale(tf_variables, model_param, q_t, N_k_dis_ = 2, maxiter = 40
     opt_ADAM = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(loss * 1e5)
     opt_LFGS = ScipyOptimizerInterface(loss * 1e5; method = "L-BFGS-B", options = Dict("maxiter" => maxiter * 2, "ftol" => 1e-14, "gtol" => 1e-14))
     opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(dw_2_sum)
-    opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method = "L-BFGS-B", var_list = [tf_variables.K_log], options = Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))
+    opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method = "L-BFGS-B", options = Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))
 
 
     return loss, dw_2_sum, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval, p_pre_soft_max, p
@@ -358,27 +358,48 @@ end
 
 function update_K_p(sess, model_param, tf_variables, check_diff, N_k_dis_, p_pre_soft_max)
     # function to update the permeabilities, if criteria are met the active probabilities are doubled otherwise the permeabilities are perturbed 
-    k_x_t_log = tf_variables.K_log
+    # k_x_t_log = tf_variables.K_log
+    K_log_mean = tf_variables.K_log_mean
+    K_log_Var = tf_variables.K_log_Var
     N_k = model_param.N_k
 
     print("function for update K:", check_diff, "\t", N_k_dis_, "\n")
     if check_diff > 5e-9 && N_k_dis_ < N_k
-
-        k_x_t_update = run(sess, k_x_t_log)
-        k_x_t_update[N_k_dis_+1:N_k_dis_*2, :] = k_x_t_update[1:N_k_dis_, :]
-        k_x_t_update = k_x_t_update .+ (0.0 .+ 5e-3 .* (0.5 .- rand(N_k)))
-        run(sess, tf.assign(k_x_t_log, k_x_t_update))
-
+    
+        # k_x_t_update = run(sess, k_x_t_log)
+        # k_x_t_update[N_k_dis_+1:N_k_dis_*2, :] = k_x_t_update[1:N_k_dis_, :]
+        # k_x_t_update = k_x_t_update .+ (0.0 .+ 5e-3 .* (0.5 .- rand(N_k)))
+        # run(sess, tf.assign(k_x_t_log, k_x_t_update))
+    
+    
+        k_log_mean_update = run(sess, k_log_mean)
+        k_log_mean_update[N_k_dis_+1:N_k_dis_*2, :] = k_log_mean_update[1:N_k_dis_, :]
+        k_log_mean_update = k_log_mean_update .+ (0.0 .+ 5e-3 .* (0.5 .- rand(N_k)))
+        run(sess, tf.assign(k_log_mean, k_log_mean_update))
+    
+        k_log_Var_update = run(sess, k_log_Var)
+        k_log_Var_update[N_k_dis_+1:N_k_dis_*2, :] = k_log_Var_update[1:N_k_dis_, :]
+        k_log_Var_update = k_log_Var_update .+ (0.0 .+ 5e-3 .* (0.5 .- rand(N_k)))
+        run(sess, tf.assign(k_log_Var, k_log_Var_update))
+    
+    
+    
         p_pre_soft_max_update = run(sess, p_pre_soft_max)
         p_pre_soft_max_update[:, N_k_dis_+1:N_k_dis_*2] = p_pre_soft_max_update[:, 1:N_k_dis_]
         p_pre_soft_max_update = p_pre_soft_max_update .* (1.0 .+ 0 * (rand(1, N_k) .- 0.5))
         run(sess, tf.assign(p_pre_soft_max, p_pre_soft_max_update))
-
+    
         N_k_dis_ *= 2
     else
-        k_x_t_update = run(sess, k_x_t_log) .+ (0.0 .+ 5e-5 * (rand(N_k) .- 0.5))
-        run(sess, tf.assign(k_x_t_log, k_x_t_update))
-
+        # k_x_t_update = run(sess, k_x_t_log) .+ (0.0 .+ 5e-5 * (rand(N_k) .- 0.5))
+        # run(sess, tf.assign(k_x_t_log, k_x_t_update))
+    
+        k_log_mean_update = run(sess, k_log_mean) .+ (0.0 .+ 5e-5 * (rand(N_k) .- 0.5))
+        run(sess, tf.assign(k_log_mean, k_log_mean_update))
+    
+        k_log_Var_update = run(sess, k_log_Var) .+ (0.0 .+ 5e-5 * (rand(N_k) .- 0.5))
+        run(sess, tf.assign(k_log_Var, k_log_Var_update))
+    
         p_pre_soft_max_update = run(sess, p_pre_soft_max) .* (1 .+ 0 * (rand(1, N_k) .- 0.5))
         run(sess, tf.assign(p_pre_soft_max, p_pre_soft_max_update))
     end

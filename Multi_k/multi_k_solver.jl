@@ -11,13 +11,13 @@ using SparseArrays
 using DelimitedFiles
 using Dates
 using Plots
+using Random
 
 mutable struct tf_variables_definition
     # structrure with all the variables are optimized and placeholder
     lambda
     N_k_dis
-    K_log
-    K_exp
+    K_save
     K
 end
 
@@ -164,10 +164,19 @@ function solver_multi_k(model_param)
 
     end
 
-    K_log = Variable(log.(ones(model_param.N_k, 1, 1) * 1e-5))
+    rng = MersenneTwister(1234)
+
+    K_log_mean = Variable(log.(ones(1, 1, 1) * 1e-5))
+    K_log_var = Variable((ones(1, 1, 1)))
+    K_log = ones(model_param.N_k, model_param.N_x, model_param.N_y) .* K_log_mean + randn(rng, (model_param.N_k, model_param.N_x, model_param.N_y)) .* K_log_var
+    K = tf.exp(K_log)
+
+    K_save = tf.stack([K_log_mean, K_log_var])
+
+    # K_log = Variable(log.(ones(model_param.N_k, 1, 1) * 1e-5))
     # K_log_field = K_log .* ones(1, model_param.N_x, model_param.N_y)
-    K_exp = tf.exp(K_log)
-    K = K_exp .* ones(1, model_param.N_x, model_param.N_y)
+    # K = tf.exp(K_log)
+    # K = K_exp .* ones(1, model_param.N_x, model_param.N_y)
 
     K_avg_x = 2 / (1 / K[:, 2:end, :] + 1 / K[:, 1:end-1, :])
     K_avg_y = 2 / (1 / K[:, :, 2:end] + 1 / K[:, :, 1:end-1])
@@ -233,7 +242,7 @@ function solver_multi_k(model_param)
     q_t_x = reshape(K_avg_x[:, i_qoi, j_qoi], (1, model_param.N_k)) .* (h_t[:, :, ij_qoi] - h_t[:, :, ij_qoi+1]) / model_param.dx
 
 
-    tf_variables = tf_variables_definition(lambda, N_k_dis, K_log, K_exp, K)
+    tf_variables = tf_variables_definition(lambda, N_k_dis, K_save, K)
 
     return tf_variables, h_t, q_t_x
 
@@ -318,7 +327,7 @@ function save_values(sess, model_param, tf_variables, q_t, p, T_exp, mode = "a")
     # name of current experiment
     exp_name = model_param.exp_name
     # evaluation of tensor flow variables and tensors
-    k_x_save = run(sess, tf_variables.K_exp)
+    k_x_save = run(sess, tf_variables.K_save)
     p_save = run(sess, p)
     q_x_save = run(sess, q_t)
 

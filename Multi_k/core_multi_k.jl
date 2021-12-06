@@ -16,7 +16,7 @@ N_steps = parse(Int64, ARGS[2])
 print("maximum iteration: ", maxiter, "\t", "Number of steps: ", N_steps, "\n")
 
 # Definition of the parameters of initial descrite probabilities and initial lambda
-global N_k_dis_ = 2
+global N_k_dis_ = 64
 global T_exp = -3.0
 
 # Initialization of the model and the optimization process
@@ -78,7 +78,7 @@ while T_exp <= T_exp_final
     if round(T_exp, digits = 2) * 10 % 1 == 0
         save_values(sess, model_param, tf_variables, q_t_x, p, T_exp)
         check_diff_ = run(sess, diff_eval, feed_dict = Dict(tf_variables.lambda => ones(1) * T_, tf_variables.N_k_dis => N_k_dis_))
-        global N_k_dis_ = update_K_p(sess, model_param, tf_variables, check_diff_, N_k_dis_, p_pre_soft_max)
+        # global N_k_dis_ = update_K_p(sess, model_param, tf_variables, check_diff_, N_k_dis_, p_pre_soft_max)
     end
 
     # Increase the lambda to continue the loop

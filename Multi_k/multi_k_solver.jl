@@ -244,7 +244,7 @@ function solver_multi_k(model_param)
     q_t_x = reshape(K_avg_x[:, i_qoi, j_qoi], (1, model_param.N_k)) .* (h_t[:, :, ij_qoi] - h_t[:, :, ij_qoi+1]) / model_param.dx
 
 
-    tf_variables = tf_variables_definition(lambda, N_k_dis, K_save, K, K_log_mean, K_log_Var)
+    tf_variables = tf_variables_definition(lambda, N_k_dis, K_save, K, K_log_mean, K_log_var)
 
     return tf_variables, h_t, q_t_x
 
@@ -361,8 +361,8 @@ end
 function update_K_p(sess, model_param, tf_variables, check_diff, N_k_dis_, p_pre_soft_max)
     # function to update the permeabilities, if criteria are met the active probabilities are doubled otherwise the permeabilities are perturbed 
     # k_x_t_log = tf_variables.K_log
-    K_log_mean = tf_variables.K_log_mean
-    K_log_Var = tf_variables.K_log_Var
+    k_log_mean = tf_variables.K_log_mean
+    k_log_Var = tf_variables.K_log_Var
     N_k = model_param.N_k
 
     print("function for update K:", check_diff, "\t", N_k_dis_, "\n")

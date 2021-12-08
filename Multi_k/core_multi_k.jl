@@ -16,12 +16,12 @@ N_steps = parse(Int64, ARGS[2])
 print("maximum iteration: ", maxiter, "\t", "Number of steps: ", N_steps, "\n")
 
 # Definition of the parameters of initial descrite probabilities and initial lambda
-global N_k_dis_ = 64
+global N_k_dis_ = 256
 global T_exp = -3.0
 
 # Initialization of the model and the optimization process
 
-model_param = param_model(N_k = 64, N_x = 10, N_y = 10, N_steps = N_steps);
+model_param = param_model(N_k = 64, N_x = 10, N_y = 10, N_steps = N_steps, N_k = N_k_dis_);
 tf_variables, check_h, q_t_x = multi_k_solver.solver_multi_k(model_param);
 loss, dw_2_sum, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval, p_pre_soft_max, p = Info_upscale(tf_variables, model_param, q_t_x, N_k_dis_)
 

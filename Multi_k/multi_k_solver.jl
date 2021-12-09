@@ -172,9 +172,14 @@ function solver_multi_k(model_param)
 
     rng = MersenneTwister(1234)
 
-    K_log_mean = Variable(log.(ones(1, 1, 1) * 1e-5))
-    K_log_var = Variable((ones(1, 1, 1)))
-    K_log = ones(model_param.N_k, model_param.N_x, model_param.N_y) .* K_log_mean + randn(rng, (model_param.N_k, model_param.N_x, model_param.N_y)) .* K_log_var
+    # K_log_mean = Variable(log.(ones(1, 1, 1) * 1e-5))
+    # K_log_var = Variable((ones(1, 1, 1)))
+    # K_log = ones(model_param.N_k, model_param.N_x, model_param.N_y) .* K_log_mean + randn(rng, (model_param.N_k, model_param.N_x, model_param.N_y)) .* K_log_var
+
+    K_log_mean = Variable(log.(ones(model_param.N_steps, 1, 1, 1) * 1e-5))
+    K_log_var = Variable((ones(model_param.N_steps, 1, 1, 1)))
+    K_log = ones(1, model_param.N_k, model_param.N_x, model_param.N_y) .* K_log_mean + randn(rng, (1, model_param.N_k, model_param.N_x, model_param.N_y)) .* K_log_var
+
     K = tf.exp(K_log)
 
     K_save = tf.stack([K_log_mean, K_log_var])

@@ -16,7 +16,7 @@ N_steps = parse(Int64, ARGS[2])
 print("maximum iteration: ", maxiter, "\t", "Number of steps: ", N_steps, "\n")
 
 # Definition of the parameters of initial descrite probabilities and initial lambda
-global N_k_dis_ = 256
+global N_k_dis_ = 64
 global T_exp = -3.0
 
 # Initialization of the model and the optimization process

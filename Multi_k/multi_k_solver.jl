@@ -121,7 +121,7 @@ function solver_multi_k(model_param)
         return h_0
     end
 
-    function advance_time(h_rhs)
+    function advance_time(h_rhs, i)
         h_n = TensorArray(model_param.N_k)
         j = constant(1, dtype = Int32)
 
@@ -131,8 +131,12 @@ function solver_multi_k(model_param)
 
         function body(j, h_n)
 
-            K_avg_x_i = reshape(K_avg_x[j, :], -1) * model_param.dt / (model_param.dx)^2 / S
-            K_avg_y_i = reshape(K_avg_y[j, :], -1) * model_param.dt / (model_param.dy)^2 / S
+            K_avg_x_t = tf.squeeze(tf.slice(K_avg_x, constant([i, 0, 0, 0], dtype = Int32), constant([1, -1, -1, -1], dtype = Int32)))
+            K_avg_y_t = tf.squeeze(tf.slice(K_avg_y, constant([i, 0, 0, 0], dtype = Int32), constant([1, -1, -1, -1], dtype = Int32)))
+
+
+            K_avg_x_i = reshape(K_avg_x_t[i, j, :], -1) * model_param.dt / (model_param.dx)^2 / S
+            K_avg_y_i = reshape(K_avg_y_t[i, j, :], -1) * model_param.dt / (model_param.dy)^2 / S
 
             m2_m = SparseTensor(list_m2_x, list_m2_y, K_avg_x_i[list_m2_v_i], model_param.Ne, model_param.Ne)
             m3_m = SparseTensor(list_m3_x, list_m3_y, K_avg_x_i[list_m3_v_i], model_param.Ne, model_param.Ne)
@@ -180,8 +184,12 @@ function solver_multi_k(model_param)
     # K = tf.exp(K_log)
     # K = K_exp .* ones(1, model_param.N_x, model_param.N_y)
 
-    K_avg_x = 2 / (1 / K[:, 2:end, :] + 1 / K[:, 1:end-1, :])
-    K_avg_y = 2 / (1 / K[:, :, 2:end] + 1 / K[:, :, 1:end-1])
+    K_avg_x = 2 / (1 / tf.slice(K, constant([0, 0, 0, 0], dtype = Int32), constant([-1, -1, model_param.N_x - 1, -1], dtype = Int32)) + 1 / tf.slice(K, constant([0, 0, 1, 0], dtype = Int32), constant([-1, -1, model_param.N_x - 1, -1], dtype = Int32)))
+    K_avg_y = 2 / (1 / tf.slice(K, constant([0, 0, 0, 0], dtype = Int32), constant([-1, -1, -1, model_param.N_y - 1], dtype = Int32)) + 1 / tf.slice(K, constant([0, 0, 0, 1], dtype = Int32), constant([-1, -1, -1, model_param.N_y - 1], dtype = Int32)))
+
+
+    # K_avg_x = 2 / (1 / K[:, 2:end, :] + 1 / K[:, 1:end-1, :])
+    # K_avg_y = 2 / (1 / K[:, :, 2:end] + 1 / K[:, :, 1:end-1])
 
 
     # Main function to solve the Darcy flow problem - forward problem
@@ -220,7 +228,7 @@ function solver_multi_k(model_param)
         h_rhs = h_rhs .* A_m[:, 1] + Array(BC_left)[:, 1] + Array(BC_right)[:, 1]
 
         # advance time
-        h_next = advance_time(h_rhs)
+        h_next = advance_time(h_rhs, i)
 
         # # # update hydraulic head
         h_t_loop = write(h_t_loop, i, h_next)
@@ -241,7 +249,11 @@ function solver_multi_k(model_param)
     j_qoi = model_param.N_y ÷ 2
     ij_qoi = (j_qoi - 1 + 1) * model_param.N_x + i_qoi
 
-    q_t_x = reshape(K_avg_x[:, i_qoi, j_qoi], (1, model_param.N_k)) .* (h_t[:, :, ij_qoi] - h_t[:, :, ij_qoi+1]) / model_param.dx
+
+    K_avg_x_ij = tf.squeeze(tf.slice(K_avg_x, constant([0, 0, i_qoi - 1, j_qoi - 1], dtype = Int32), constant([1, -1, 1, 1], dtype = Int32)))
+
+
+    q_t_x = reshape(K_avg_x_ij, (model_param.N_steps, model_param.N_k)) .* (h_t[:, :, ij_qoi] - h_t[:, :, ij_qoi+1]) / model_param.dx
 
 
     tf_variables = tf_variables_definition(lambda, N_k_dis, K_save, K, K_log_mean, K_log_var)

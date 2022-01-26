@@ -260,54 +260,54 @@ using Plots
     end
 
     ## Probability constructions
-    function Info_upscale(tf_variables,model_param,q_t_x,q_t_y,N_k_dis_,maxiter=400)
+    function Info_upscale(tf_variables, model_param, q_t_x, q_t_y, N_k_dis_, maxiter = 400)
         # function to construct the loss funtion for the optimization problem
-
+    
         # Define probabilities as parameters of softmax to assure sum(p)=1
-        p_pre_soft_max_values = ones(1,model_param.N_k);# .+ (1e0 .* rand(1,model_param.N_k)) ; #CHANGED TO CHECK IF NOT OPTIMIZED --
-
+        p_pre_soft_max_values = ones(1, model_param.N_k)# .+ (1e0 .* rand(1,model_param.N_k)) ; #CHANGED TO CHECK IF NOT OPTIMIZED --
+    
         # Load quantity of interest that are needed for the optimization process
         momment2, y_x_list, y_y_list = load_QoIs(model_param)
-
+    
         # Make only part of the probabilities to be active
         for i = 1:N_k_dis_
-            p_pre_soft_max_values[1,i] +=100
+            p_pre_soft_max_values[1, i] += 100
         end
-
+    
         # Pass values in to soft max to make them as probabilities
-        p_pre_soft_max = Variable(p_pre_soft_max_values, trainable=false) #CHANGED TO CHECK IF NOT OPTIMIZED
-        p = tf.nn.softmax(p_pre_soft_max,1)
-
+        p_pre_soft_max = Variable(p_pre_soft_max_values, trainable = false) #CHANGED TO CHECK IF NOT OPTIMIZED
+        p = tf.nn.softmax(p_pre_soft_max, 1)
+    
         # Evaluation of all loss functions for all available points
-        loss_x_list = [loss_function(tf_variables.lambda*3,p,y_x_list[ii],q_t_x[ii]) for ii = 1:model_param.N_points]
-        loss_y_list = [loss_function(tf_variables.lambda,p,y_y_list[ii],q_t_y[ii]) for ii = 1:model_param.N_points];
-
+        loss_x_list = [loss_function(tf_variables.lambda * 3, p, y_x_list[ii], q_t_x[ii]) for ii = 1:model_param.N_points]
+        loss_y_list = [loss_function(tf_variables.lambda, p, y_y_list[ii], q_t_y[ii]) for ii = 1:model_param.N_points]
+    
         # Evaluate the loss function for the central point
         loss_x = loss_x_list[5][1] + loss_x_list[4][1] + loss_x_list[6][1] #+ loss_x_list[2][1] + loss_x_list[8][1] 
         loss_y = loss_y_list[5][1] + loss_y_list[4][1] + loss_y_list[6][1] #+ loss_y_list[2][1] + loss_y_list[8][1] 
-        loss = loss_x + loss_y 
-        
+        loss = loss_x + loss_y
+    
         # Loss function as Mean Square Error
         dw_x = loss_x_list[5][2] + loss_x_list[4][2] + loss_x_list[6][2] #+ loss_x_list[2][2] + loss_x_list[8][2] 
         dw_y = loss_y_list[5][2] + loss_y_list[4][2] + loss_y_list[6][2] #+ loss_y_list[2][2] + loss_y_list[8][2]         
         dw_2_sum = dw_x + dw_y #change name
-
-
+    
+    
         # Evaluation of the distance of consecutive flow values 
-        sort_list = [tf.sort(tf.slice(q_t_x[ii],[0,0,0],[model_param.N_steps,tf_variables.N_k_dis,1]),axis=1) for ii=5]
-        diff_list = [tf.reduce_max(tf.reduce_min((tf.slice(sort_list[ii],[0,1,0],[-1,-1,-1])-
-        (tf.slice(sort_list[ii],[0,0,0],[-1,tf_variables.N_k_dis-1,-1])))./tf.reduce_mean(sort_list[ii],axis=1,keep_dims=true),axis=1)) for ii =1]
-        diff_eval =  tf.reduce_max(tf.stack(diff_list))
-
+        sort_list = [tf.sort(tf.slice(q_t_x[ii], [0, 0, 0], [model_param.N_steps, tf_variables.N_k_dis, 1]), axis = 1) for ii = 5]
+        diff_list = [tf.reduce_max(tf.reduce_min((tf.slice(sort_list[ii], [0, 1, 0], [-1, -1, -1]) -
+                                                  (tf.slice(sort_list[ii], [0, 0, 0], [-1, tf_variables.N_k_dis - 1, -1]))) ./ tf.reduce_mean(sort_list[ii], axis = 1, keep_dims = true), axis = 1)) for ii = 1]
+        diff_eval = tf.reduce_max(tf.stack(diff_list))
+    
         # Define all the optimization algorithm ADAM and LFGS for both MSE and information theory approach
-        opt_ADAM = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss* 1e5) 
-        opt_LFGS = ScipyOptimizerInterface(loss* 1e5; method="L-BFGS-B", options=Dict("maxiter"=> maxiter * 2, "ftol"=>1e-14, "gtol"=>1e-14))
-        opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
-        opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_xy_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-14, "gtol"=>1e-14))
-        opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_x_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-14, "gtol"=>1e-14))
-        opt_LFGS_y = ScipyOptimizerInterface(loss_y * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_y_t_log], options=Dict("maxiter"=> maxiter, "ftol"=>1e-14, "gtol"=>1e-14))
-
-        return loss,dw_2_sum , opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval,p_pre_soft_max, p,opt_LFGS_x,opt_LFGS_y
+        opt_ADAM = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(loss * 1e5)
+        opt_LFGS = ScipyOptimizerInterface(loss * 1e5; method = "L-BFGS-B", bounds = Dict(tf_variables.k_x_t_log => [-13.0, -11.5]), options = Dict("maxiter" => maxiter * 2, "ftol" => 1e-14, "gtol" => 1e-14))
+        opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(dw_2_sum)
+        opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method = "L-BFGS-B", var_list = [tf_variables.k_xy_t_log], options = Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))
+        opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method = "L-BFGS-B", var_list = [tf_variables.k_x_t_log], options = Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))
+        opt_LFGS_y = ScipyOptimizerInterface(loss_y * 1e5; method = "L-BFGS-B", var_list = [tf_variables.k_y_t_log], options = Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))
+    
+        return loss, dw_2_sum, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval, p_pre_soft_max, p, opt_LFGS_x, opt_LFGS_y
     end
 
     function loss_function(lambda,p,y_t,q_t)

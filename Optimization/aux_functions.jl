@@ -285,7 +285,7 @@ using Plots
         # Evaluate the loss function for the central point
         loss_x = loss_x_list[5][1] + loss_x_list[4][1] + loss_x_list[6][1] #+ loss_x_list[2][1] + loss_x_list[8][1] 
         loss_y = loss_y_list[5][1] + loss_y_list[4][1] + loss_y_list[6][1] #+ loss_y_list[2][1] + loss_y_list[8][1] 
-        loss = loss_x + loss_y
+        loss = loss_x + 100 * loss_y
     
         # Loss function as Mean Square Error
         dw_x = loss_x_list[5][2] + loss_x_list[4][2] + loss_x_list[6][2] #+ loss_x_list[2][2] + loss_x_list[8][2] 
@@ -301,7 +301,7 @@ using Plots
     
         # Define all the optimization algorithm ADAM and LFGS for both MSE and information theory approach
         opt_ADAM = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(loss * 1e5)
-        opt_LFGS = ScipyOptimizerInterface(loss * 1e5; method = "L-BFGS-B", var_to_bounds = Dict(tf_variables.k_x_t_log => [-13.0, -11.5]), options = Dict("maxiter" => maxiter * 2, "ftol" => 1e-14, "gtol" => 1e-14))
+        opt_LFGS = ScipyOptimizerInterface(loss * 1e5; method = "L-BFGS-B", var_to_bounds = Dict(tf_variables.k_x_t_log => [-13.0, -11.5], tf_variables.k_y_t_log => [-13.0, -11.5]), options = Dict("maxiter" => maxiter * 2, "ftol" => 1e-14, "gtol" => 1e-14))
         opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(dw_2_sum)
         opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method = "L-BFGS-B", var_list = [tf_variables.k_xy_t_log], options = Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))
         opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method = "L-BFGS-B", var_list = [tf_variables.k_x_t_log], options = Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))

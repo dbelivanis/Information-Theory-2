@@ -5,8 +5,8 @@
 #SBATCH --partition=gpu
 #SBATCH --mem=64GB
 #SBATCH --time=48:00:00
-#SBATCH --error=/home/dbelivan/research/run_multi_k.err
-#SBATCH --output=/home/dbelivan/research/run_multi_k.out
+#SBATCH --error=/home/dbelivan/research/run_bound.err
+#SBATCH --output=/home/dbelivan/research/run_bound.out
 #
 #
 echo "start script"
@@ -15,7 +15,7 @@ nvcc --version
 #
 #
 cd Optimization
-/home/dbelivan/julia-1.5.3/bin/julia core_2.jl 500 50
+/home/dbelivan/julia-1.5.3/bin/julia core_2.jl 100 50
 #
 echo "check end of script"
 # end script

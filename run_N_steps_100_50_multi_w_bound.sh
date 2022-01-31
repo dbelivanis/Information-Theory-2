@@ -15,7 +15,7 @@ nvcc --version
 #
 #
 cd Optimization
-/home/dbelivan/julia-1.5.3/bin/julia core_2.jl 100 50
+/home/dbelivan/julia-1.5.3/bin/julia core_2.jl 200 50
 #
 echo "check end of script"
 # end script

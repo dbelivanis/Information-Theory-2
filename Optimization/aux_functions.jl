@@ -285,7 +285,7 @@ using Plots
         # Evaluate the loss function for the central point
         loss_x = loss_x_list[5][1] #+ loss_x_list[4][1] + loss_x_list[6][1] #+ loss_x_list[2][1] + loss_x_list[8][1] 
         loss_y = loss_y_list[5][1] #+ loss_y_list[4][1] + loss_y_list[6][1] #+ loss_y_list[2][1] + loss_y_list[8][1] 
-        loss = loss_x + 5 * loss_y
+        loss = 2* loss_x + 1 * loss_y
     
         # Loss function as Mean Square Error
         dw_x = loss_x_list[5][2] #+ loss_x_list[4][2] + loss_x_list[6][2] #+ loss_x_list[2][2] + loss_x_list[8][2] 

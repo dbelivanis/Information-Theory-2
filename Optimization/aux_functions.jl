@@ -149,114 +149,120 @@ using Plots
     ## Main model constructor
     function Darcy_flow_solver(model_param_local)
         # Main function to solve the Darcy flow problem - forward problem
-
+    
         # Definition of basic parameters
         global model_param = model_param_local
         global aux_matrix = Multi_point_flux_aux_matrix(model_param)
-        global x = LinRange(0,1,model_param.N_x)
-        global y = LinRange(0,1,model_param.N_y)
-        global N_k_dis = placeholder(model_param.N_k,dtype=Int32)
+        global x = LinRange(0, 1, model_param.N_x)
+        global y = LinRange(0, 1, model_param.N_y)
+        global N_k_dis = placeholder(model_param.N_k, dtype = Int32)
         lambda = placeholder(ones(1))
-       
+    
         # initialize the head with initial condition
         h_IC = IC()
         # Initialize the tensor of head for all time steps
         h_t = TensorArray(model_param.N_steps)
         # load values of initial guess of the permeability
         k_x, k_y = param.load_K_s(model_param)
-        
+    
         # Initialize the variables of permeabilities
-        k_x_t_log = Variable(log.(reshape(k_x,(1,model_param.N_steps))  .+ zeros(model_param.N_k,model_param.N_steps)).+ 4e-3.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
+        # k_x_t_log = Variable(log.(reshape(k_x,(1,model_param.N_steps))  .+ zeros(model_param.N_k,model_param.N_steps)).+ 4e-3.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
+        # k_x_t = tf.exp(k_x_t_log)
+    
+        # k_y_t_log = Variable(log.(reshape(k_y,(1,model_param.N_steps))  .+ zeros(model_param.N_k,model_param.N_steps)).+ 4e-3.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
+        # k_y_t = tf.exp(k_y_t_log)
+    
+        k_x_t_log = Variable(log.((ones(1, model_param.N_steps) .* 1e-5) .+ zeros(model_param.N_k, model_param.N_steps)) .+ 4e-3 .* (0.5 .- rand(model_param.N_k, model_param.N_steps)))
         k_x_t = tf.exp(k_x_t_log)
-
-        k_y_t_log = Variable(log.(reshape(k_y,(1,model_param.N_steps))  .+ zeros(model_param.N_k,model_param.N_steps)).+ 4e-3.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
+    
+        k_y_t_log = Variable(log.((ones(1, model_param.N_steps) .* 1e-5) .+ zeros(model_param.N_k, model_param.N_steps)) .+ 4e-3 .* (0.5 .- rand(model_param.N_k, model_param.N_steps)))
         k_y_t = tf.exp(k_y_t_log)
-
-        k_xy_t_log = Variable(zeros(model_param.N_k,model_param.N_steps)  .+ 1e-5.*(0.5 .- rand(model_param.N_k,model_param.N_steps)))
+    
+        k_xy_t_log = Variable(zeros(model_param.N_k, model_param.N_steps) .+ 1e-5 .* (0.5 .- rand(model_param.N_k, model_param.N_steps)))
         k_xy_t = tf.tanh(k_xy_t_log) .* k_x_t^0.5 .* k_y_t^0.5 .* 0.4
-
-
+    
+    
         # Initialize the tensor o flow in x and y direction
         q_t_x = [TensorArray(model_param.N_steps) for ii = 1:model_param.N_points]
-        q_t_y = [TensorArray(model_param.N_steps) for ii = 1:model_param.N_points];
-
-
-
+        q_t_y = [TensorArray(model_param.N_steps) for ii = 1:model_param.N_points]
+    
+    
+    
         # Initial state out of the Loop 
         # Initial condition
-        
+    
         # write the first head value in the tensor
-        h_t = write(h_t, 1,constant(h_IC))
-
+        h_t = write(h_t, 1, constant(h_IC))
+    
         # Extract the permeabilities
-        k_x = tf.slice(k_x_t,constant([0,0],dtype=Int32),[-1,1]) 
-        k_y = tf.slice(k_y_t,constant([0,0],dtype=Int32),[-1,1]) 
-        k_xy = tf.slice(k_xy_t,constant([0,0],dtype=Int32),[-1,1]) 
-
+        k_x = tf.slice(k_x_t, constant([0, 0], dtype = Int32), [-1, 1])
+        k_y = tf.slice(k_y_t, constant([0, 0], dtype = Int32), [-1, 1])
+        k_xy = tf.slice(k_xy_t, constant([0, 0], dtype = Int32), [-1, 1])
+    
         # Evaluate the flows based on initial condition
-        q_y = [get_ver_flux(k_x,k_y,k_xy,h_IC,model_param.loc_x_list[ii],model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
-        q_x = [get_hor_flux(k_x,k_y,k_xy,h_IC,model_param.loc_x_list[ii],model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
-
+        q_y = [get_ver_flux(k_x, k_y, k_xy, h_IC, model_param.loc_x_list[ii], model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
+        q_x = [get_hor_flux(k_x, k_y, k_xy, h_IC, model_param.loc_x_list[ii], model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
+    
         # Write the initial flows on tensor
-        q_t_x = [write(q_t_x[ii],1,q_x[ii]) for ii = 1:model_param.N_points];
-        q_t_y = [write(q_t_y[ii],1,q_y[ii]) for ii = 1:model_param.N_points];
-
+        q_t_x = [write(q_t_x[ii], 1, q_x[ii]) for ii = 1:model_param.N_points]
+        q_t_y = [write(q_t_y[ii], 1, q_y[ii]) for ii = 1:model_param.N_points]
+    
         # next step
-        i = constant(2, dtype=Int32)
-
-        
+        i = constant(2, dtype = Int32)
+    
+    
         S = 1e-6 # Storativity
-
-            function condition(i, h_t_loop, q_t_x_loop, q_t_y_loop)
-                # for loop until last time step
-                i<= model_param.N_steps
-            end
-
-            function body(i, h_t_loop, q_t_x_loop, q_t_y_loop)
-                
-                # calculate time
-                t = cast(i-1,Float64)*model_param.dt
-
-                # build rhs
-                h_rhs = read(h_t_loop, i-1)
-                BC_left, BC_right = BC(t)
-                h_rhs = h_rhs .* aux_matrix.A_m[:,1] + Array(BC_left)[:,1] + Array(BC_right)[:,1]
-
-                #extract permeability
-                k_x = tf.slice(k_x_t,[0,i-1],[-1,1]) 
-                k_y = tf.slice(k_y_t,[0,i-1],[-1,1])
-                k_xy = tf.slice(k_xy_t,[0,i-1],[-1,1])
-
-                # advance time
-                h_next = advance_time(k_x/S,k_y/S,k_xy/S,h_rhs)
-
-                # # # update hydraulic head
-                h_t_loop = write(h_t_loop, i, h_next)
-
-                # Evaluate the flows on the corresponding time step
-                q_x = [get_hor_flux(k_x,k_y,k_xy,h_next,model_param.loc_x_list[ii],model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
-                q_y = [get_ver_flux(k_x,k_y,k_xy,h_next,model_param.loc_x_list[ii],model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
-                
-                # Write the flows of the corresponding time step to the tensor
-                q_t_x_loop = [write(q_t_x_loop[ii],i,q_x[ii]) for ii = 1:model_param.N_points];
-                q_t_y_loop = [write(q_t_y_loop[ii],i,q_y[ii]) for ii = 1:model_param.N_points];
-                
-                # return head and flow
-                i+1, h_t_loop, q_t_x_loop, q_t_y_loop
-                
-            end
-
+    
+        function condition(i, h_t_loop, q_t_x_loop, q_t_y_loop)
+            # for loop until last time step
+            i <= model_param.N_steps
+        end
+    
+        function body(i, h_t_loop, q_t_x_loop, q_t_y_loop)
+    
+            # calculate time
+            t = cast(i - 1, Float64) * model_param.dt
+    
+            # build rhs
+            h_rhs = read(h_t_loop, i - 1)
+            BC_left, BC_right = BC(t)
+            h_rhs = h_rhs .* aux_matrix.A_m[:, 1] + Array(BC_left)[:, 1] + Array(BC_right)[:, 1]
+    
+            #extract permeability
+            k_x = tf.slice(k_x_t, [0, i - 1], [-1, 1])
+            k_y = tf.slice(k_y_t, [0, i - 1], [-1, 1])
+            k_xy = tf.slice(k_xy_t, [0, i - 1], [-1, 1])
+    
+            # advance time
+            h_next = advance_time(k_x / S, k_y / S, k_xy / S, h_rhs)
+    
+            # # # update hydraulic head
+            h_t_loop = write(h_t_loop, i, h_next)
+    
+            # Evaluate the flows on the corresponding time step
+            q_x = [get_hor_flux(k_x, k_y, k_xy, h_next, model_param.loc_x_list[ii], model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
+            q_y = [get_ver_flux(k_x, k_y, k_xy, h_next, model_param.loc_x_list[ii], model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
+    
+            # Write the flows of the corresponding time step to the tensor
+            q_t_x_loop = [write(q_t_x_loop[ii], i, q_x[ii]) for ii = 1:model_param.N_points]
+            q_t_y_loop = [write(q_t_y_loop[ii], i, q_y[ii]) for ii = 1:model_param.N_points]
+    
+            # return head and flow
+            i + 1, h_t_loop, q_t_x_loop, q_t_y_loop
+    
+        end
+    
         # Define the tensor flow loop
-        _, out, outx, outy = while_loop(condition, body, [i, h_t,q_t_x, q_t_y])
-
+        _, out, outx, outy = while_loop(condition, body, [i, h_t, q_t_x, q_t_y])
+    
         h_t = stack(out)
-        q_t_x = [stack(outx[i]) for i=1:model_param.N_points]
-        q_t_y = [stack(outy[i]) for i=1:model_param.N_points];
-
+        q_t_x = [stack(outx[i]) for i = 1:model_param.N_points]
+        q_t_y = [stack(outy[i]) for i = 1:model_param.N_points]
+    
         # Pack the important parameters for later use
-        tf_variables = tf_variables_definition(lambda,N_k_dis,k_x_t,k_y_t,k_xy_t,k_x_t_log,k_y_t_log,k_xy_t_log)
+        tf_variables = tf_variables_definition(lambda, N_k_dis, k_x_t, k_y_t, k_xy_t, k_x_t_log, k_y_t_log, k_xy_t_log)
         return tf_variables, h_t, q_t_x, q_t_y
-
+    
     end
 
     ## Probability constructions

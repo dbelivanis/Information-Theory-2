@@ -174,7 +174,7 @@ function solver_multi_k(model_param)
 
 
     K_array = readdlm("k_array.txt")
-    K_array = reshape(K_array, (1, 100, 21, 21))
+    K_array = reshape(K_array, (1, model_param.N_k, model_param.N_x, model_param.N_y))
 
     rng = MersenneTwister(1234)
 

@@ -173,7 +173,7 @@ function solver_multi_k(model_param)
     end
 
 
-    K_array = readdlm("K_array.txt");
+    K_array = readdlm("k_array.txt");
     K_array = reshape(check,(1,100,21,21));
     
     rng = MersenneTwister(1234)

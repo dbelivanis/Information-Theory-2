@@ -131,37 +131,41 @@ function solver_multi_k(model_param)
         end
 
         function body(j, h_n)
-
+        
             # K_avg_x_t = tf.squeeze(tf.slice(K_avg_x, constant([1, 0, 0, 0], dtype = Int32), constant([1, -1, -1, -1], dtype = Int32)))
             # K_avg_y_t = tf.squeeze(tf.slice(K_avg_y, constant([1, 0, 0, 0], dtype = Int32), constant([1, -1, -1, -1], dtype = Int32)))
-
-            K_avg_x_t = K_avg_x[i][j]
-            K_avg_y_t = K_avg_y[i][j]
-
+        
+            # K_avg_x_t = K_avg_x[i][j]
+            # K_avg_y_t = K_avg_y[i][j]
+        
+        
+            K_avg_x_t = K_avg_x[j]
+            K_avg_y_t = K_avg_y[j]
+            
             K_avg_x_i = reshape(K_avg_x_t, -1) * model_param.dt / (model_param.dx)^2 / S
             K_avg_y_i = reshape(K_avg_y_t, -1) * model_param.dt / (model_param.dy)^2 / S
-
+        
             m2_m = SparseTensor(list_m2_x, list_m2_y, K_avg_x_i[list_m2_v_i], model_param.Ne, model_param.Ne)
             m3_m = SparseTensor(list_m3_x, list_m3_y, K_avg_x_i[list_m3_v_i], model_param.Ne, model_param.Ne)
             m4_m = SparseTensor(list_m4_x, list_m4_y, K_avg_y_i[list_m4_v_i], model_param.Ne, model_param.Ne)
             m5_m = SparseTensor(list_m5_x, list_m5_y, K_avg_y_i[list_m4_v_i], model_param.Ne, model_param.Ne)
-
-
+        
+        
             m2_d = SparseTensor(list_m2_x, list_m2_x, K_avg_x_i[list_m2_v_i], model_param.Ne, model_param.Ne)
             m3_d = SparseTensor(list_m3_x, list_m3_x, K_avg_x_i[list_m3_v_i], model_param.Ne, model_param.Ne)
             m4_d = SparseTensor(list_m4_x, list_m4_x, K_avg_y_i[list_m4_v_i], model_param.Ne, model_param.Ne)
             m5_d = SparseTensor(list_m5_x, list_m5_x, K_avg_y_i[list_m4_v_i], model_param.Ne, model_param.Ne)
-
-
+        
+        
             A = spdiag(model_param.Ne) - (m2_m + m3_m + m4_m + m5_m) + (m2_d + m3_d + m4_d + m5_d)
-
+        
             h_j = A \ h_rhs[j]
-
+        
             # # update head
-
+        
             h_n = write(h_n, j, h_j)
-
-
+        
+        
             j + 1, h_n
         end
 
@@ -196,12 +200,12 @@ function solver_multi_k(model_param)
     # K = tf.exp(K_log)
     # K = K_exp .* ones(1, model_param.N_x, model_param.N_y)
 
-    K_avg_x = 2 / (1 / tf.slice(K, constant([0, 0, 0, 0], dtype = Int32), constant([-1, -1, model_param.N_x - 1, -1], dtype = Int32)) + 1 / tf.slice(K, constant([0, 0, 1, 0], dtype = Int32), constant([-1, -1, model_param.N_x - 1, -1], dtype = Int32)))
-    K_avg_y = 2 / (1 / tf.slice(K, constant([0, 0, 0, 0], dtype = Int32), constant([-1, -1, -1, model_param.N_y - 1], dtype = Int32)) + 1 / tf.slice(K, constant([0, 0, 0, 1], dtype = Int32), constant([-1, -1, -1, model_param.N_y - 1], dtype = Int32)))
+    # K_avg_x = 2 / (1 / tf.slice(K, constant([0, 0, 0, 0], dtype = Int32), constant([-1, -1, model_param.N_x - 1, -1], dtype = Int32)) + 1 / tf.slice(K, constant([0, 0, 1, 0], dtype = Int32), constant([-1, -1, model_param.N_x - 1, -1], dtype = Int32)))
+    # K_avg_y = 2 / (1 / tf.slice(K, constant([0, 0, 0, 0], dtype = Int32), constant([-1, -1, -1, model_param.N_y - 1], dtype = Int32)) + 1 / tf.slice(K, constant([0, 0, 0, 1], dtype = Int32), constant([-1, -1, -1, model_param.N_y - 1], dtype = Int32)))
 
 
-    # K_avg_x = 2 / (1 / K[:, 2:end, :] + 1 / K[:, 1:end-1, :])
-    # K_avg_y = 2 / (1 / K[:, :, 2:end] + 1 / K[:, :, 1:end-1])
+    K_avg_x = 2 / (1 / K[:, 2:end, :] + 1 / K[:, 1:end-1, :])
+    K_avg_y = 2 / (1 / K[:, :, 2:end] + 1 / K[:, :, 1:end-1])
 
 
     # Main function to solve the Darcy flow problem - forward problem

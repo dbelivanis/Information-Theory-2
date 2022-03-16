@@ -1,0 +1,8 @@
+#GMS_HDF5_01
+10 AUX SHEADFACT AUX EHEADFACT AUX CELLGRP
+        10         0         0
+GMS_HDF5_01 "test_trans.h5" "Specified Head" 1
+        10         0         0
+GMS_HDF5_01 "test_trans.h5" "Specified Head" 2
+        10         0         0
+GMS_HDF5_01 "test_trans.h5" "Specified Head" 3

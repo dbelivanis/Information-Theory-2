@@ -1,0 +1,15 @@
+# MF2K NAME file
+#
+# Output Files
+LIST            2 "test_trans.out"
+DATA            3 "test_trans.hed"
+#
+# Global Input Files
+DIS             8 "test_trans.dis"
+#
+# Flow Process Input Files
+BAS6            9 "test_trans.ba6"
+LPF            10 "test_trans.lpf"
+OC             11 "test_trans.oc"
+CHD            12 "test_trans.chd"
+PCG            13 "test_trans.pcg"

@@ -1,0 +1,16 @@
+# MF2K NAME file
+#
+# Output Files
+LIST            2 "6_months_run.out"
+DATA            3 "6_months_run.hed"
+ASP             7 "6_months_run.asp"
+#
+# Global Input Files
+DIS             8 "6_months_run.dis"
+#
+# Flow Process Input Files
+BAS6            9 "6_months_run.ba6"
+LPF            10 "6_months_run.lpf"
+OC             11 "6_months_run.oc"
+CHD            12 "6_months_run.chd"
+PCG            13 "6_months_run.pcg"

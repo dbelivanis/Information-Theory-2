@@ -310,8 +310,6 @@ function Info_upscale(tf_variables, model_param, q_t_x, N_k_dis_, maxiter = 400)
     # dw_y = loss_y_list[5][2] #+ loss_y_list[4][2] + loss_y_list[6][2] #+ loss_y_list[2][2] + loss_y_list[8][2]         
     dw_2_sum = dw_x #+ dw_y #change name
 
-    print("check")
-
     # Evaluation of the distance of consecutive flow values 
     sort_list = [tf.sort(tf.slice(q_t_x, [0, 0, 0], [model_param.N_steps, tf_variables.N_k_dis, 1]), axis = 1) ]
     

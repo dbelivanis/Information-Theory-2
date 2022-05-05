@@ -34,13 +34,14 @@ T_ = 10.0 .^ -T_exp
 
 
 # Save values of the initial guess
-save_values(sess, param_model_val, tf_variables, q_t_x,  p, T_exp, "w")
+save_values(sess, param_model_val, tf_variables, q_t_x, q_t_y,  p, T_exp, "w")
 print_status(sess, param_model_val, loss, diff_eval, T_exp, T_, N_k_dis_, tf_variables, "w")
 
 # Initial optimization with mean value as target
 ScipyOptimizerMinimize(sess, opt_LFGS_sum, feed_dict = Dict(tf_variables.lambda => ones(1) * T_, tf_variables.N_k_dis => 64))
 print("first bfgs")
-save_values(sess, param_model_val, tf_variables, q_t_x,  p, T_exp)
+save_values(sess, param_model_val, tf_variables, q_t_x, q_t_y,  p, T_exp)
+
 print_status(sess, param_model_val, loss, diff_eval, T_exp, T_, N_k_dis_, tf_variables)
 check_diff = run(sess, diff_eval, feed_dict = Dict(tf_variables.lambda => ones(1) * T_, tf_variables.N_k_dis => N_k_dis_))
 
@@ -52,7 +53,8 @@ while T_exp <= T_exp_final
 
     # save the values before optimization
     if round(T_exp, digits = 2) * 10 % 1 == 0
-        save_values(sess, param_model_val, tf_variables, q_t_x,  p, T_exp)
+        save_values(sess, param_model_val, tf_variables, q_t_x, q_t_y,  p, T_exp)
+
     end
 
     # Definition of the lambda value
@@ -77,7 +79,8 @@ while T_exp <= T_exp_final
 
     # Save values post optimization every 10 optimization processes and check for the discritization of the cdf to increase the descrite probabilities
     if round(T_exp, digits = 2) * 10 % 1 == 0
-        save_values(sess, param_model_val, tf_variables, q_t_x,  p, T_exp)
+        save_values(sess, param_model_val, tf_variables, q_t_x, q_t_y,  p, T_exp)
+
         check_diff_ = run(sess, diff_eval, feed_dict = Dict(tf_variables.lambda => ones(1) * T_, tf_variables.N_k_dis => N_k_dis_))
         global N_k_dis_ = update_K_p(sess, param_model_val, tf_variables, check_diff_, N_k_dis_, p_pre_soft_max)
     end

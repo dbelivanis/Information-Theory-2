@@ -472,7 +472,7 @@ function optimize(T_, N_k_dis_)
     ScipyOptimizerMinimize(sess, opt_LFGS_sum, feed_dict = Dict(lambda => ones(1) * T_, N_k_dis => N_k_dis_))
 end
 
-function save_values(sess, model_param, tf_variables, q_t_x, p, T_exp, mode = "a")
+function save_values(sess, model_param, tf_variables, q_t_x, q_t_y, p, T_exp, mode = "a")
     # function to save values of permeabilities during optimization
 
     # name of current experiment
@@ -483,7 +483,7 @@ function save_values(sess, model_param, tf_variables, q_t_x, p, T_exp, mode = "a
     k_xy_save = run(sess, tf_variables.k_xy_t)
     p_save = run(sess, p)
     q_x_save = run(sess, q_t_x)
-    # q_y_save = run(sess, q_t_y[5])
+    q_y_save = run(sess, q_t_y)
 
     # Write in each txt the corresponding value
     open(string("./../results/", exp_name, "lambda.txt"), mode) do io
@@ -505,9 +505,9 @@ function save_values(sess, model_param, tf_variables, q_t_x, p, T_exp, mode = "a
     open(string("./../results/", exp_name, "q_x.txt"), mode) do io
         writedlm(io, q_x_save)
     end
-    # open(string("./../results/", exp_name, "q_y.txt"), mode) do io
-    #     writedlm(io, q_y_save)
-    # end
+    open(string("./../results/", exp_name, "q_y.txt"), mode) do io
+        writedlm(io, q_y_save)
+    end
 end
 
 function print_status(sess, model_param, loss, diff_eval, T_exp, T_, N_k_dis_, tf_variables, mode = "a")

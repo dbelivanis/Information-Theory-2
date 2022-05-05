@@ -172,18 +172,22 @@ function load_QoIs(model_param)
     # function to load the quantity of interest and calculate the standard deviation
 
     files_x = [string("./", model_param.run_name, "/Q_x_mid", ".txt")]
+    files_y = [string("./", model_param.run_name, "/Q_y_mid", ".txt")]
     # files_y = [string("./",model_param.run_name,"/Q_y_",string(ii),".txt") for ii =1:9]
 
     y_x_list = [readdlm(files_x[ii], ' ', Float64) for ii = 1]
+    y_y_list = [readdlm(files_y[ii], ' ', Float64) for ii = 1]
     # y_y_list = [readdlm(files_y[ii], ' ', Float64) for ii =1:9];
 
     momment2 = maximum([maximum(std(y_x_list))])
     n_step_skip = model_param.N_steps_orig ÷ model_param.N_steps
 
     y_x_list = [y_x_list[ii][:, 1:n_step_skip:1800] for ii = 1]# automate the time steps
+    y_y_list = [y_y_list[ii][:, 1:n_step_skip:1800] for ii = 1]# automate the time steps
+
     # y_y_list = [y_y_list[ii][:,1:n_step_skip:1800] for ii =1:9];
 
-    return momment2, y_x_list
+    return momment2, y_x_list, y_y_list
 end
 end
 

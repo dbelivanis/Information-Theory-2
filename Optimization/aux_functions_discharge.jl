@@ -112,20 +112,39 @@ function advance_time(a, b, c, h_)
 end
 
 ## aux functions for flux calculations
-    function P(h_, i, j)
-        # get the head for specifi i and j
-        tf.strided_slice(h_, [0, i + (j + 1) * model_param.N_y], [model_param.N_k, (j - 1) * model_param.N_y - 1], [1, model_param.N_y])
-    end
+function P(h_, i, j)
+    # get the head for specifi i and j
+    tf.strided_slice(h_, [0, i - 1 + (j + 1) * model_param.N_y], [model_param.N_k, (j - 1) * model_param.N_y - 1], [1, model_param.N_y])
+end
 
 
-    function get_hor_flux(a, b, c, h_, i)
-        flux = ((a .- tf.square(c) ./ (2 * b)) .* (P(h_, i, 0) - P(h_, i + 1, 0)) +
-                (c ./ 4 .+ tf.square(c) ./ (4 * b)) .* (P(h_, i - 1, -1) - P(h_, i + 1, 1)) +
-                (c ./ 4 .- tf.square(c) ./ (4 * b)) .* (P(h_, i - 1, 1) - P(h_, i + 1, -1))) / model_param.dx
-    
-        tf.reduce_mean(flux, axis = 1, keep_dims = true)
-    
-    end
+function P_y(h_, i, j)
+    # get the head for specifi i and j
+    tf.strided_slice(h_, [0, (i - 1) * model_param.N_x + 1 + j], [model_param.N_k, i * model_param.N_x + j - 1], [1, 1])
+end
+
+
+function get_hor_flux(a, b, c, h_, i)
+    flux = ((a .- tf.square(c) ./ (2 * b)) .* (P(h_, i, 0) - P(h_, i + 1, 0)) +
+            (c ./ 4 .+ tf.square(c) ./ (4 * b)) .* (P(h_, i , -1) - P(h_, i + 1, 1)) +
+            (c ./ 4 .- tf.square(c) ./ (4 * b)) .* (P(h_, i , 1) - P(h_, i + 1, -1))) / model_param.dx
+
+    tf.reduce_mean(flux, axis = 1, keep_dims = true)
+
+end
+
+function get_ver_flux(a, b, c, h_, i)
+    # calculate vertical flux for given i and j
+    #double check!!!!
+
+    flux = ((b .- tf.square(c) ./ (2 * a)) .* (P_y(h_, i, 0) - P_y(h_, i + 1, 0)) +
+            (c ./ 4 .+ tf.square(c) ./ (4 * a)) .* (P_y(h_, i, -1) - P_y(h_, i + 1, +1)) +
+            (c ./ 4 .- tf.square(c) ./ (4 * a)) .* (P_y(h_, i, 1) - P_y(h_, i + 1, -1))) / model_param.dy
+
+    tf.reduce_mean(flux, axis=1, keep_dims=true)
+
+end
+
 
 # function get_ver_flux(a, b, c, h_, i, j)
 #     # calculate vertikal flux for given i and j
@@ -158,7 +177,7 @@ function Darcy_flow_solver(model_param_local)
     global aux_matrix = Multi_point_flux_aux_matrix(model_param)
     global x = LinRange(0, 1, model_param.N_x)
     global y = LinRange(0, 1, model_param.N_y)
-    global N_k_dis = placeholder(model_param.N_k, dtype = Int32)
+    global N_k_dis = placeholder(model_param.N_k, dtype=Int32)
     lambda = placeholder(ones(1))
     # initialize the head with initial condition
     h_IC = IC()
@@ -189,6 +208,7 @@ function Darcy_flow_solver(model_param_local)
     # q_t_y = [TensorArray(model_param.N_steps) for ii = 1:model_param.N_points]
 
     q_t_x = TensorArray(model_param.N_steps)
+    q_t_y = TensorArray(model_param.N_steps)
 
     # Initial state out of the Loop 
     # Initial condition
@@ -197,93 +217,98 @@ function Darcy_flow_solver(model_param_local)
     h_t = write(h_t, 1, constant(h_IC))
 
     # Extract the permeabilities
-    k_x = tf.slice(k_x_t, constant([0, 0], dtype = Int32), [-1, 1])
-    k_y = tf.slice(k_y_t, constant([0, 0], dtype = Int32), [-1, 1])
-    k_xy = tf.slice(k_xy_t, constant([0, 0], dtype = Int32), [-1, 1])
+    k_x = tf.slice(k_x_t, constant([0, 0], dtype=Int32), [-1, 1])
+    k_y = tf.slice(k_y_t, constant([0, 0], dtype=Int32), [-1, 1])
+    k_xy = tf.slice(k_xy_t, constant([0, 0], dtype=Int32), [-1, 1])
 
     # Evaluate the flows based on initial condition
     # q_y = [get_ver_flux(k_x, k_y, k_xy, h_IC, model_param.loc_x_list[ii], model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
     # q_x = [get_hor_flux(k_x, k_y, k_xy, h_IC, model_param.loc_x_list[ii], model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
     q_x = get_hor_flux(k_x, k_y, k_xy, h_IC, 10)
+    q_y = get_ver_flux(k_x, k_y, k_xy, h_IC, 10)
 
     #############
     # Write the initial flows on tensor
     q_t_x = write(q_t_x, 1, q_x)
+    q_t_y = write(q_t_y, 1, q_y)
     # q_t_x = [write(q_t_x[ii], 1, q_x[ii]) for ii = 1:model_param.N_points]
     # q_t_y = [write(q_t_y[ii], 1, q_y[ii]) for ii = 1:model_param.N_points]
 
     # next step
-    i = constant(2, dtype = Int32)
+    i = constant(2, dtype=Int32)
 
 
     S = 1e-6 # Storativity
-    
-    function condition(i, h_t_loop, q_t_x_loop)
+
+    function condition(i, h_t_loop, q_t_x_loop, q_t_y_loop)
         # for loop until last time step
         i <= model_param.N_steps
     end
 
-    function body(i, h_t_loop, q_t_x_loop)
-    
+    function body(i, h_t_loop, q_t_x_loop, q_t_y_loop)
+
         # calculate time
         t = cast(i - 1, Float64) * model_param.dt
-    
+
         # build rhs
         h_rhs = read(h_t_loop, i - 1)
         BC_left, BC_right = BC(t)
         h_rhs = h_rhs .* aux_matrix.A_m[:, 1] + Array(BC_left)[:, 1] + Array(BC_right)[:, 1]
-    
+
         #extract permeability
         k_x = tf.slice(k_x_t, [0, i - 1], [-1, 1])
         k_y = tf.slice(k_y_t, [0, i - 1], [-1, 1])
         k_xy = tf.slice(k_xy_t, [0, i - 1], [-1, 1])
-    
+
         # advance time
         h_next = advance_time(k_x / S, k_y / S, k_xy / S, h_rhs)
-    
+
         # # # update hydraulic head
         h_t_loop = write(h_t_loop, i, h_next)
-    
+
         # Evaluate the flows on the corresponding time step
         q_x = get_hor_flux(k_x, k_y, k_xy, h_next, 10)
+        q_y = get_ver_flux(k_x, k_y, k_xy, h_next, 10)
         # q_x = [get_hor_flux(k_x, k_y, k_xy, h_next, model_param.loc_x_list[ii], model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
         # q_y = [get_ver_flux(k_x, k_y, k_xy, h_next, model_param.loc_x_list[ii], model_param.loc_y_list[ii]) for ii in 1:length(model_param.loc_x_list)]
-    
+
         # Write the flows of the corresponding time step to the tensor
-        q_t_x_loop = write(q_t_x_loop, 1, q_x)
-    
+        q_t_x_loop = write(q_t_x_loop, i, q_x)
+        q_t_y_loop = write(q_t_y_loop, i, q_y)
+
         # q_t_x_loop = [write(q_t_x_loop[ii], i, q_x[ii]) for ii = 1:model_param.N_points]
         # q_t_y_loop = [write(q_t_y_loop[ii], i, q_y[ii]) for ii = 1:model_param.N_points]
-    
+
         # return head and flow
-        i + 1, h_t_loop, q_t_x_loop
-    
+        i + 1, h_t_loop, q_t_x_loop, q_t_y_loop
+
     end
 
     # Define the tensor flow loop
-    _, out, out = while_loop(condition, body, [i, h_t, q_t_x])
+    _, out_h_t, out_q_t_x, out_q_t_y = while_loop(condition, body, [i, h_t, q_t_x, q_t_y])
 
-    h_t = stack(out)
+    q_t_x = stack(out_q_t_x)
+    q_t_y = stack(out_q_t_y)
 
-    q_t_x = stack(q_t_x)
+    h_t = stack(out_h_t)
     # q_t_x = [stack(outx[i]) for i = 1:model_param.N_points]
     # q_t_y = [stack(outy[i]) for i = 1:model_param.N_points]
 
     # Pack the important parameters for later use
     tf_variables = tf_variables_definition(lambda, N_k_dis, k_x_t, k_y_t, k_xy_t, k_x_t_log, k_y_t_log, k_xy_t_log)
-    return tf_variables, h_t, q_t_x
+    return tf_variables, h_t, q_t_x, q_t_y
 
 end
 
 ## Probability constructions
-function Info_upscale(tf_variables, model_param, q_t_x, N_k_dis_, maxiter = 400)
+function Info_upscale(tf_variables, model_param, q_t_x, q_t_y, N_k_dis_, maxiter=400)
     # function to construct the loss funtion for the optimization problem
 
     # Define probabilities as parameters of softmax to assure sum(p)=1
     p_pre_soft_max_values = ones(1, model_param.N_k)# .+ (1e0 .* rand(1,model_param.N_k)) ; #CHANGED TO CHECK IF NOT OPTIMIZED --
 
     # Load quantity of interest that are needed for the optimization process
-    momment2, y_x_list = load_QoIs(model_param)
+    momment2, y_x_list, y_y_list = load_QoIs(model_param)
 
     # Make only part of the probabilities to be active
     for i = 1:N_k_dis_
@@ -291,19 +316,21 @@ function Info_upscale(tf_variables, model_param, q_t_x, N_k_dis_, maxiter = 400)
     end
 
     # Pass values in to soft max to make them as probabilities
-    p_pre_soft_max = Variable(p_pre_soft_max_values, trainable = false) #CHANGED TO CHECK IF NOT OPTIMIZED
+    p_pre_soft_max = Variable(p_pre_soft_max_values, trainable=false) #CHANGED TO CHECK IF NOT OPTIMIZED
     p = tf.nn.softmax(p_pre_soft_max, 1)
 
     # Evaluation of all loss functions for all available points
     loss_x_list = loss_function(tf_variables.lambda, p, y_x_list[1], q_t_x)
+    loss_y_list = loss_function(tf_variables.lambda, p, y_y_list[1], q_t_y)
     # loss_x_list = [loss_function(tf_variables.lambda, p, y_x_list[ii], q_t_x[ii]) for ii = 1:model_param.N_points]
 
     # loss_y_list = [loss_function(tf_variables.lambda, p, y_y_list[ii], q_t_y[ii]) for ii = 1:model_param.N_points]
 
     # Evaluate the loss function for the central point
     loss_x = loss_x_list[1] #+ loss_x_list[4][1] + loss_x_list[6][1] #+ loss_x_list[2][1] + loss_x_list[8][1] 
+    loss_y = loss_y_list[1]
     # loss_y = loss_y_list[5][1] #+ loss_y_list[4][1] + loss_y_list[6][1] #+ loss_y_list[2][1] + loss_y_list[8][1] 
-    loss = 1 * loss_x #+ 1.1 * loss_y
+    loss =  loss_x + loss_y
 
     # Loss function as Mean Square Error
     dw_x = loss_x_list[2] #+ loss_x_list[4][2] + loss_x_list[6][2] #+ loss_x_list[2][2] + loss_x_list[8][2] 
@@ -311,18 +338,18 @@ function Info_upscale(tf_variables, model_param, q_t_x, N_k_dis_, maxiter = 400)
     dw_2_sum = dw_x #+ dw_y #change name
 
     # Evaluation of the distance of consecutive flow values 
-    sort_list = [tf.sort(tf.slice(q_t_x, [0, 0, 0], [model_param.N_steps, tf_variables.N_k_dis, 1]), axis = 1) ]
-    
+    sort_list = [tf.sort(tf.slice(q_t_x, [0, 0, 0], [model_param.N_steps, tf_variables.N_k_dis, 1]), axis=1)]
+
     diff_list = [tf.reduce_max(tf.reduce_min((tf.slice(sort_list[ii], [0, 1, 0], [-1, -1, -1]) -
-                                              (tf.slice(sort_list[ii], [0, 0, 0], [-1, tf_variables.N_k_dis - 1, -1]))) ./ tf.reduce_mean(sort_list[ii], axis = 1, keep_dims = true), axis = 1)) for ii = 1]
+                                              (tf.slice(sort_list[ii], [0, 0, 0], [-1, tf_variables.N_k_dis - 1, -1]))) ./ tf.reduce_mean(sort_list[ii], axis=1, keep_dims=true), axis=1)) for ii = 1]
     diff_eval = tf.reduce_max(tf.stack(diff_list))
 
     # Define all the optimization algorithm ADAM and LFGS for both MSE and information theory approach
-    opt_ADAM = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(loss * 1e5)
-    opt_LFGS = ScipyOptimizerInterface(loss * 1e5; method = "L-BFGS-B", var_to_bounds = Dict(tf_variables.k_x_t_log => [-13.5, -10.0], tf_variables.k_y_t_log => [-13.5, -10.0]), options = Dict("maxiter" => maxiter * 2, "ftol" => 1e-14, "gtol" => 1e-14))
-    opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(dw_2_sum)
-    opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method = "L-BFGS-B", var_list = [tf_variables.k_xy_t_log], options = Dict("maxiter" => maxiter * 5, "ftol" => 1e-14, "gtol" => 1e-14))
-    opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method = "L-BFGS-B", var_list = [tf_variables.k_x_t_log], options = Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))
+    opt_ADAM = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss * 1e5)
+    opt_LFGS = ScipyOptimizerInterface(loss * 1e5; method="L-BFGS-B", var_to_bounds=Dict(tf_variables.k_x_t_log => [-13.5, -10.0], tf_variables.k_y_t_log => [-13.5, -10.0]), options=Dict("maxiter" => maxiter * 2, "ftol" => 1e-14, "gtol" => 1e-14))
+    opt_ADAM_sum = tf.train.AdamOptimizer(learning_rate=0.001).minimize(dw_2_sum)
+    opt_LFGS_sum = ScipyOptimizerInterface(dw_2_sum * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_xy_t_log], options=Dict("maxiter" => maxiter * 5, "ftol" => 1e-14, "gtol" => 1e-14))
+    opt_LFGS_x = ScipyOptimizerInterface(loss_x * 1e5; method="L-BFGS-B", var_list=[tf_variables.k_x_t_log], options=Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))
     # opt_LFGS_y = ScipyOptimizerInterface(loss_y * 1e5; method = "L-BFGS-B", var_list = [tf_variables.k_y_t_log], options = Dict("maxiter" => maxiter, "ftol" => 1e-14, "gtol" => 1e-14))
 
     return loss, dw_2_sum, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval, p_pre_soft_max, p, opt_LFGS_x

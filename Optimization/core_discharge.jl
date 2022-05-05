@@ -21,8 +21,8 @@ global T_exp = -3.0
 
 # Initialization of the model and the optimization process
 param_model_val = param_model(N_steps = N_steps);
-tf_variables, h_t, q_t_x = Darcy_flow_solver(param_model_val);
-loss, dw_2, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval, p_pre_soft_max, p, opt_LFGS_x = Info_upscale(tf_variables, param_model_val, q_t_x, N_k_dis_, maxiter)
+tf_variables, h_t, q_t_x, q_t_y = Darcy_flow_solver(param_model_val);
+loss, dw_2, opt_ADAM, opt_LFGS, opt_ADAM_sum, opt_LFGS_sum, diff_eval, p_pre_soft_max, p, opt_LFGS_x = Info_upscale(tf_variables, param_model_val, q_t_x, q_t_y, N_k_dis_, maxiter)
 
 # Initialization of the session
 sess = Session();

@@ -22,8 +22,8 @@ using Parameters, DelimitedFiles, ADCME, SparseArrays, Dates
     N_k::Int64 = 64
 
     ## Fine scale Inputs
-    N_x::Int64 = 21
-    N_y::Int64 = 21
+    N_x::Int64 = 20
+    N_y::Int64 = 20
     Ne::Int64 = N_x * N_y
     N_steps_fine::Int64 = N_steps
     N_k_fine::Int64 = 100

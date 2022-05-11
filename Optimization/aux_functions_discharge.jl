@@ -316,7 +316,7 @@ function Info_upscale(tf_variables, model_param, q_t_x, q_t_y, N_k_dis_, maxiter
     end
 
     # Pass values in to soft max to make them as probabilities
-    p_pre_soft_max = Variable(p_pre_soft_max_values, trainable=false) #CHANGED TO CHECK IF NOT OPTIMIZED
+    p_pre_soft_max = Variable(p_pre_soft_max_values, trainable=true) #CHANGED TO CHECK IF NOT OPTIMIZED
     p = tf.nn.softmax(p_pre_soft_max, 1)
 
     # Evaluation of all loss functions for all available points
